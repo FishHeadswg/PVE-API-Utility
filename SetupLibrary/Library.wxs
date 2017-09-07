@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Name='PaperVision API Utility 1.0' Manufacturer='Digitech Systems, LLC.'
+        Id='729e071a-617c-4225-b74e-542c60704c40'
+        UpgradeCode='3b5a3d9a-9d7a-405a-b3f1-db42062380c6'
+        Language='1033' Codepage='1252' Version='1.0.0'>
+    <Package Id='*' Keywords='Installer' Description="Acme's Foobar 1.0 Installer"
+        Comments='Foobar is a registered trademark of Acme Ltd.' Manufacturer='Acme Ltd.'
+        InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+  </Product>
+	<Fragment>
+		<!-- TODO: Put your code here. -->
+	</Fragment>
+</Wix>

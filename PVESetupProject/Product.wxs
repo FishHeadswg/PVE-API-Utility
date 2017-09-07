@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="42822951-a3f1-4a36-b7f4-3fc8b705b1aa" Name="PaperVision API Utility 1.0" Language="1033" Version="1.0.0.0" Manufacturer="Digitech Systems, LLC." UpgradeCode="4c114f64-8fa0-4197-96b3-e71b7f603ff3">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of PVE API Utility is already installed." />
+    <MediaTemplate />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="DigitechSystems" Name="Digitech Systems">
+          <Directory Id='INSTALLDIR' Name='PVE API Utility 1.0'>
+
+            <Component Id='MainExecutable' Guid='533e0f0c-70d3-4e38-8e75-124a1587a139'>
+              <File Id='PVEAPIEXE' Name='PVEAPIUtility.exe' DiskId='1' Source='PVEAPIUtility.exe' KeyPath='yes'>
+                <Shortcut Id="startmenuPVEAPI10" Directory="ProgramMenuDir" Name="PVEAPI 1.0" WorkingDirectory='INSTALLDIR' Icon="PVEAPIUtility.exe" IconIndex="0" Advertise="yes" />
+                <Shortcut Id="desktopPVEAPI10" Directory="DesktopFolder" Name="PVEAPI 1.0" WorkingDirectory='INSTALLDIR' Icon="PVEAPIUtility.exe" IconIndex="0" Advertise="yes" />
+              </File>
+            </Component>
+
+            <Component Id='HelperLibrary' Guid='bab3d497-a438-49bc-a603-10c330b31d86'>
+              <File Id='HelperDLL' Name='Interop.PVDMSystem.dll' DiskId='1' Source='Interop.PVDMSystem.dll' KeyPath='yes' />
+            </Component>
+
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name="PVEAPI 1.0">
+          <Component Id="ProgramMenuDir" Guid="ee1b9290-5074-4c88-8b54-5176989a0354">
+            <RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='MainExecutable' />
+      <ComponentRef Id='HelperLibrary' />
+      <ComponentRef Id='ProgramMenuDir' />
+    </Feature>
+
+    <Icon Id="PVEAPIUtility.exe" SourceFile="PVEAPIUtility.exe" />
+    
+  </Product>
+</Wix>

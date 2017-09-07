@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="f0d1954b-7740-4d65-bf46-4b961656c60d" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost/Services/DocumentSearch/DocumentSearch.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="DocumentSearch.disco" MetadataType="Disco" ID="d3e29507-277a-4c21-829d-119094b64c95" SourceId="1" SourceUrl="http://localhost/Services/DocumentSearch/DocumentSearch.svc?disco" />
+    <MetadataFile FileName="DocumentSearch.wsdl" MetadataType="Wsdl" ID="46e0613b-6940-46f3-8b99-1def6fd8ba19" SourceId="1" SourceUrl="http://localhost/Services/DocumentSearch/DocumentSearch.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="DocumentSearch.xsd" MetadataType="Schema" ID="d70c5946-093d-4fa5-9a93-34104175f41d" SourceId="1" SourceUrl="http://localhost/Services/DocumentSearch/DocumentSearch.svc?xsd=xsd0" />
+    <MetadataFile FileName="PVDOCUMENTSEARCH.wsdl" MetadataType="Wsdl" ID="8aa0de41-8bff-424f-a796-f9ff7e6a9a30" SourceId="1" SourceUrl="http://localhost/Services/DocumentSearch/DocumentSearch.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

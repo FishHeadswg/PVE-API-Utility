@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PVE API Utility", "PVE API Utility\PVE API Utility.csproj", "{C069CCFC-036D-4B9D-80DF-BB75955932FC}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{E378B9BD-3DBD-424B-8369-CA1C26C466EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{C069CCFC-036D-4B9D-80DF-BB75955932FC}.Release|x86.Build.0 = Release|Any CPU
+		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Debug|Any CPU.ActiveCfg = Debug
+		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Debug|x86.ActiveCfg = Debug
+		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Release|Any CPU.ActiveCfg = Release
+		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Release|x86.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

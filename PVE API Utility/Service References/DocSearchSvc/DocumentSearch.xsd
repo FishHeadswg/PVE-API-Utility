@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://www.digitechsystems.com" elementFormDefault="qualified" targetNamespace="http://www.digitechsystems.com" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="SEARCH">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="1" name="SESSION" type="tns:PVSESSION" />
+        <xs:element minOccurs="0" maxOccurs="1" name="QUERY" type="tns:PVQUERY" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="PVSESSION">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="SESSIONID" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ENTITYID" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SOURCEIPADDRESS" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DEVELOPERID" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVQUERY">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="PROJECTQUERIES" type="tns:ArrayOfPVPROJECTQUERY" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPVPROJECTQUERY">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PVPROJECTQUERY" nillable="true" type="tns:PVPROJECTQUERY" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVPROJECTQUERY">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="CALLERQUERYID" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PROJECTID" type="xs:long" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FIELDSTORETURN" type="tns:ArrayOfPVFIELD" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CONDITION" type="tns:PVCONDITION" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SORTFIELDS" type="tns:ArrayOfPVSORT" />
+      <xs:element minOccurs="0" maxOccurs="1" name="FULLTEXTQUERY" type="tns:PVFULLTEXTQUERY" />
+      <xs:element minOccurs="0" maxOccurs="1" name="COMPILEDQUERY" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PAGESIZE" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PAGEKEY" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="IGNOREERRORS" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RETURNCOUNTONLY" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RETURNSEARCHSTATISICS" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPVFIELD">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PVFIELD" nillable="true" type="tns:PVFIELD" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVFIELD">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FIELDNAME" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="HASH" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVCONDITION">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FIELDNAME" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="OPERATOR" type="tns:PVOPERATOR" />
+      <xs:element minOccurs="0" maxOccurs="1" name="QUERYVALUE" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="CONDITIONGROUP" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="CONDITIONCONNECTOR" type="tns:PVBOOLEAN" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CONDITIONS" type="tns:ArrayOfPVCONDITION" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="PVOPERATOR">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EQUAL" />
+      <xs:enumeration value="NOTEQUAL" />
+      <xs:enumeration value="GREATERTHAN" />
+      <xs:enumeration value="GREATERTHANOREQUAL" />
+      <xs:enumeration value="LESSTHAN" />
+      <xs:enumeration value="LESSTHANOREQUAL" />
+      <xs:enumeration value="ISNULL" />
+      <xs:enumeration value="ISNOTNULL" />
+      <xs:enumeration value="LIKE" />
+      <xs:enumeration value="NOTLIKE" />
+      <xs:enumeration value="IN" />
+      <xs:enumeration value="NOTIN" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PVBOOLEAN">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AND" />
+      <xs:enumeration value="OR" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="ArrayOfPVCONDITION">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PVCONDITION" nillable="true" type="tns:PVCONDITION" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPVSORT">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PVSORT" nillable="true" type="tns:PVSORT" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVSORT">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FIELDNAME" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SORTORDER" type="tns:PVSORTORDER" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="PVSORTORDER">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ASCENDING" />
+      <xs:enumeration value="DESCENDING" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="PVFULLTEXTQUERY">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="QUERYTYPE" type="tns:PVQUERYTYPE" />
+      <xs:element minOccurs="0" maxOccurs="1" name="QUERYVALUE" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="FUZZINESS" type="xs:int" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PHONIC" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="STEMMING" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="NATURALLANGUAGE" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SYNONYMSALLWORDS" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SYNONYMSUSER" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SYNONYMSWORDNET" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="SYNONYMSWORDNETRELATED" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RETURNTITLE" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="RETURNSTATISTICS" type="xs:boolean" />
+      <xs:element minOccurs="1" maxOccurs="1" name="QUERYAFTERINDICES" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="PVQUERYTYPE">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ALLWORDS" />
+      <xs:enumeration value="ANYWORDS" />
+      <xs:enumeration value="BOOLEAN" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SEARCHResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="1" name="SEARCHResult" type="tns:PVQUERYRESPONSE" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="PVQUERYRESPONSE">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:PVRESPONSE">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="PROJECTQUERYRESPONSES" type="tns:ArrayOfPVPROJECTQUERYRESPONSE" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="PVRESPONSE">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="RETURNCODE" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPVPROJECTQUERYRESPONSE">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PVPROJECTQUERYRESPONSE" nillable="true" type="tns:PVPROJECTQUERYRESPONSE" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVPROJECTQUERYRESPONSE">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="CALLERQUERYID" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PROJECTID" type="xs:long" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SEARCHRESULT">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any processContents="lax" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element minOccurs="1" maxOccurs="1" name="RESULTCOUNT" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="COMPILEDQUERY" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PAGENEXTKEY" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SEARCHSTATISTICS" type="tns:PVSEARCHSTATISTICS" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PVSEARCHSTATISTICS">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="COMPILE" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EXECUTE" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="EXECUTEFULLTEXT" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="BUILDRESULTS" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TOTAL" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
