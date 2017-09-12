@@ -4,6 +4,7 @@
  * Follow the comments to complete the form.
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Drawing;
 using System.IO;
@@ -19,6 +20,7 @@ using System.Windows.Forms;
 namespace PVEAPIUtility
 {
     using CustomExtensions;
+    using System.Diagnostics;
 
     /// <summary>
     /// Main form for the API utility.
@@ -76,6 +78,14 @@ namespace PVEAPIUtility
             InitializeComponent();
             pingTimer.Tick += new EventHandler(PingSession);
             Rainbow = new[] { Color.Black, Color.Green, Color.Blue, Color.Indigo };
+        }
+
+        public enum BatchOp
+        {
+            View = 0,
+            Email = 1,
+            Export = 2,
+            Print = 3
         }
 
         /// <summary>
@@ -137,7 +147,7 @@ namespace PVEAPIUtility
         private string BuildLoginQuery()
         {
             // *TO BE DONE*: Pass the entity ID, user name, and password to the LoginUserEx3 call from the form controls
-            var query = String.Format("<PVE><FUNCTION><NAME>LoginUserEx3</NAME><PARAMETERS><ENTITYID>{0}</ENTITYID><USERNAME>{1}</USERNAME><PASSWORD>{2}</PASSWORD><SOURCEIP></SOURCEIP><CORELICTYPE></CORELICTYPE><CLIENTPINGABLE>TRUE</CLIENTPINGABLE><REMOTEAUTH>FALSE</REMOTEAUTH></PARAMETERS></FUNCTION></PVE>", EntID, Username, Password);
+            var query = $"<PVE><FUNCTION><NAME>LoginUserEx3</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><USERNAME>{Username}</USERNAME><PASSWORD>{Password}</PASSWORD><SOURCEIP></SOURCEIP><CORELICTYPE></CORELICTYPE><CLIENTPINGABLE>TRUE</CLIENTPINGABLE><REMOTEAUTH>FALSE</REMOTEAUTH></PARAMETERS></FUNCTION></PVE>";
             return query;
         }
 
@@ -220,7 +230,7 @@ namespace PVEAPIUtility
             if (SessionID != null)
                 try
                 {
-                    var query = String.Format("<PVE><FUNCTION><NAME>KillSession</NAME><PARAMETERS><ENTITYID>{0}</ENTITYID><SESSIONID>{1}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>", EntID, SessionID);
+                    var query = $"<PVE><FUNCTION><NAME>KillSession</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><SESSIONID>{SessionID}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>";
                     XMLHelper.SendXml(Url, query);
                     btnCreateQuery.Enabled = false;
                     btnOpenDoc.Enabled = false;
@@ -263,23 +273,41 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// // Open a document (can be opened in default browser or DocViewer (default))
+        /// // Open a document (can be opened in BBV [default browser or DocViewer (default)] or PVWA)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BtnOpenDoc_Click(object sender, EventArgs e)
         {
             var docViewer = new DocViewer();
-            var url = String.Format("{0}/PVEDocViewer.aspx?SessionID={1}&EntID={2}&ProjID={3}&DocId={4}&Page=1", Url, SessionID, Convert.ToString(numEntID.Value), Convert.ToString(numProjID.Value), Convert.ToString(numDocID.Value));
-            docViewer.SetURL(url);
-            docViewer.Show();
+            if (radioBBV.Checked)
+            {
+                String url = $"{Url}/PVEDocViewer.aspx?SessionID={SessionID}&EntID={Convert.ToString(numEntID.Value)}&ProjID={Convert.ToString(numProjID.Value)}&DocId={Convert.ToString(numDocID.Value)}&Page=1";
+                docViewer.SetURL(url);
+                docViewer.Show();
 
-            // Uncomment to use default browser instead
-            /*
-            string url = String.Format("{0}/PVEDocViewer.aspx?SessionID={1}&EntID={2}&ProjID={3}&DocId={4}&Page=1", Url, sessid, Convert.ToString(numEntID.Value), Convert.ToString(numProjID.Value), Convert.ToString(numDocID.Value));
-            ProcessStartInfo startBrowser = new ProcessStartInfo(url);
-            Process.Start(startBrowser);
-            */
+                // Uncomment to use default browser instead
+                /*
+                string url = String.Format("{0}/PVEDocViewer.aspx?SessionID={1}&EntID={2}&ProjID={3}&DocId={4}&Page=1", Url, sessid, Convert.ToString(numEntID.Value), Convert.ToString(numProjID.Value), Convert.ToString(numDocID.Value));
+                ProcessStartInfo startBrowser = new ProcessStartInfo(url);
+                Process.Start(startBrowser);
+                */
+            }
+            else
+            {
+                var opInfo = new
+                {
+                    PROJECTID = Convert.ToString(numProjID.Value),  //Document project ID
+                    BATCHOPID = BatchOp.View,                       //see the above enum
+                    BATCHDOCIDS = "null",                           //used when using batch operation such as (print/email/export)
+                    DOCIDS = Convert.ToString(numDocID.Value),      //used to show the doc. Leave empty if batch operation
+                    INDEXNAMES = "index names pip delimited",       //used to populate the index grid
+                    INDEXVALUES = "index values pip delimited",     //used to populate the index grid
+                    SORTEDDOCIDS = ""                               //used by next/previous doc commands
+                };
+                String url = $"LaunchPVWA:op?entID={EntID}&sessID={SessionID}&user={Username}&server={Url}/HTTPInterface.aspx&pvAuth=&op=AXDocViewer&opInfo={JsonConvert.SerializeObject(opInfo)}";
+                Process.Start(url);
+            }
         }
 
         /// <summary>
@@ -475,7 +503,7 @@ namespace PVEAPIUtility
             var mySearchClient = new DocSearchSvc.PVDOCUMENTSEARCHClient();
 
             // Set endpoint
-            mySearchClient.Endpoint.Address = new EndpointAddress(String.Format("{0}/Services/DocumentSearch/DocumentSearch.svc", conurl));
+            mySearchClient.Endpoint.Address = new EndpointAddress($"{conurl}/Services/DocumentSearch/DocumentSearch.svc");
             // Check for SSL (e.g., Silo).
             if (conurl.ToLower().Contains("https"))
                 mySearchClient.Endpoint.Binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport);
@@ -621,7 +649,7 @@ namespace PVEAPIUtility
 
         private void PingSession(object sender, EventArgs e)
         {
-            string pingQuery = String.Format("<PVE><FUNCTION><NAME>PingSession</NAME><PARAMETERS><ENTITYID>{0}</ENTITYID><SESSIONID>{1}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>", EntID, SessionID);
+            string pingQuery = $"<PVE><FUNCTION><NAME>PingSession</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><SESSIONID>{SessionID}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>";
             XMLHelper.SendXml(Url, pingQuery);
         }
 

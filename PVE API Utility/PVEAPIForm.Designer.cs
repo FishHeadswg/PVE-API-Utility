@@ -51,6 +51,8 @@
             this.btnCustom = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.radioPVWA = new System.Windows.Forms.RadioButton();
+            this.radioBBV = new System.Windows.Forms.RadioButton();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chkSave = new System.Windows.Forms.CheckBox();
             this.txtSessionID = new System.Windows.Forms.TextBox();
@@ -78,7 +80,7 @@
             // 
             // btnLogIn
             // 
-            this.btnLogIn.Location = new System.Drawing.Point(16, 154);
+            this.btnLogIn.Location = new System.Drawing.Point(9, 73);
             this.btnLogIn.Name = "btnLogIn";
             this.btnLogIn.Size = new System.Drawing.Size(68, 23);
             this.btnLogIn.TabIndex = 6;
@@ -100,7 +102,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(9, 50);
+            this.label1.Location = new System.Drawing.Point(6, 50);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(63, 13);
             this.label1.TabIndex = 3;
@@ -110,7 +112,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(209, 50);
+            this.label2.Location = new System.Drawing.Point(244, 50);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 13);
             this.label2.TabIndex = 5;
@@ -120,7 +122,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(389, 24);
+            this.label3.Location = new System.Drawing.Point(361, 24);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(50, 13);
             this.label3.TabIndex = 6;
@@ -130,16 +132,16 @@
             // 
             this.txtUsername.Location = new System.Drawing.Point(78, 47);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(125, 20);
+            this.txtUsername.Size = new System.Drawing.Size(160, 20);
             this.txtUsername.TabIndex = 3;
             this.txtUsername.Text = "admin";
             // 
             // txtPW
             // 
-            this.txtPW.Location = new System.Drawing.Point(271, 47);
+            this.txtPW.Location = new System.Drawing.Point(306, 47);
             this.txtPW.Name = "txtPW";
             this.txtPW.PasswordChar = '*';
-            this.txtPW.Size = new System.Drawing.Size(112, 20);
+            this.txtPW.Size = new System.Drawing.Size(167, 20);
             this.txtPW.TabIndex = 4;
             // 
             // btnCreateQuery
@@ -167,20 +169,20 @@
             // 
             this.txtURL.Location = new System.Drawing.Point(78, 21);
             this.txtURL.Name = "txtURL";
-            this.txtURL.Size = new System.Drawing.Size(305, 20);
+            this.txtURL.Size = new System.Drawing.Size(277, 20);
             this.txtURL.TabIndex = 1;
             this.txtURL.Text = "http://localhost";
             // 
             // numEntID
             // 
-            this.numEntID.Location = new System.Drawing.Point(445, 21);
+            this.numEntID.Location = new System.Drawing.Point(423, 21);
             this.numEntID.Maximum = new decimal(new int[] {
             1000000,
             0,
             0,
             0});
             this.numEntID.Name = "numEntID";
-            this.numEntID.Size = new System.Drawing.Size(64, 20);
+            this.numEntID.Size = new System.Drawing.Size(50, 20);
             this.numEntID.TabIndex = 2;
             this.numEntID.Value = new decimal(new int[] {
             1,
@@ -191,28 +193,28 @@
             // txtResponse
             // 
             this.txtResponse.BackColor = System.Drawing.SystemColors.Window;
-            this.txtResponse.Location = new System.Drawing.Point(16, 189);
+            this.txtResponse.Location = new System.Drawing.Point(16, 225);
             this.txtResponse.Name = "txtResponse";
             this.txtResponse.ReadOnly = true;
             this.txtResponse.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtResponse.Size = new System.Drawing.Size(956, 323);
+            this.txtResponse.Size = new System.Drawing.Size(956, 287);
             this.txtResponse.TabIndex = 15;
             this.txtResponse.Text = "";
             // 
             // btnOpenDoc
             // 
             this.btnOpenDoc.Enabled = false;
-            this.btnOpenDoc.Location = new System.Drawing.Point(247, 19);
+            this.btnOpenDoc.Location = new System.Drawing.Point(211, 19);
             this.btnOpenDoc.Name = "btnOpenDoc";
-            this.btnOpenDoc.Size = new System.Drawing.Size(95, 23);
+            this.btnOpenDoc.Size = new System.Drawing.Size(40, 23);
             this.btnOpenDoc.TabIndex = 12;
-            this.btnOpenDoc.Text = "Open Document";
+            this.btnOpenDoc.Text = "View";
             this.btnOpenDoc.UseVisualStyleBackColor = true;
             this.btnOpenDoc.Click += new System.EventHandler(this.BtnOpenDoc_Click);
             // 
             // btnSaveResults
             // 
-            this.btnSaveResults.Location = new System.Drawing.Point(893, 154);
+            this.btnSaveResults.Location = new System.Drawing.Point(887, 190);
             this.btnSaveResults.Name = "btnSaveResults";
             this.btnSaveResults.Size = new System.Drawing.Size(79, 23);
             this.btnSaveResults.TabIndex = 14;
@@ -230,7 +232,7 @@
             0,
             0});
             this.numProjID.Name = "numProjID";
-            this.numProjID.Size = new System.Drawing.Size(56, 20);
+            this.numProjID.Size = new System.Drawing.Size(40, 20);
             this.numProjID.TabIndex = 10;
             this.numProjID.Value = new decimal(new int[] {
             1,
@@ -252,7 +254,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(131, 24);
+            this.label6.Location = new System.Drawing.Point(115, 24);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(44, 13);
             this.label6.TabIndex = 23;
@@ -261,14 +263,14 @@
             // numDocID
             // 
             this.numDocID.Enabled = false;
-            this.numDocID.Location = new System.Drawing.Point(181, 21);
+            this.numDocID.Location = new System.Drawing.Point(165, 21);
             this.numDocID.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.numDocID.Name = "numDocID";
-            this.numDocID.Size = new System.Drawing.Size(60, 20);
+            this.numDocID.Size = new System.Drawing.Size(40, 20);
             this.numDocID.TabIndex = 11;
             this.numDocID.Value = new decimal(new int[] {
             1,
@@ -279,7 +281,7 @@
             // btnUpload
             // 
             this.btnUpload.Enabled = false;
-            this.btnUpload.Location = new System.Drawing.Point(786, 154);
+            this.btnUpload.Location = new System.Drawing.Point(693, 190);
             this.btnUpload.Name = "btnUpload";
             this.btnUpload.Size = new System.Drawing.Size(101, 23);
             this.btnUpload.TabIndex = 13;
@@ -290,7 +292,7 @@
             // btnCustom
             // 
             this.btnCustom.Enabled = false;
-            this.btnCustom.Location = new System.Drawing.Point(90, 154);
+            this.btnCustom.Location = new System.Drawing.Point(800, 190);
             this.btnCustom.Name = "btnCustom";
             this.btnCustom.Size = new System.Drawing.Size(81, 23);
             this.btnCustom.TabIndex = 7;
@@ -302,7 +304,7 @@
             // 
             this.groupBox1.Controls.Add(this.btnCreateQuery);
             this.groupBox1.Controls.Add(this.btnSendQuery);
-            this.groupBox1.Location = new System.Drawing.Point(177, 135);
+            this.groupBox1.Location = new System.Drawing.Point(16, 171);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(248, 48);
             this.groupBox1.TabIndex = 27;
@@ -311,17 +313,41 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.radioPVWA);
+            this.groupBox2.Controls.Add(this.radioBBV);
             this.groupBox2.Controls.Add(this.btnOpenDoc);
             this.groupBox2.Controls.Add(this.numProjID);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.numDocID);
-            this.groupBox2.Location = new System.Drawing.Point(432, 135);
+            this.groupBox2.Location = new System.Drawing.Point(271, 171);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(348, 48);
+            this.groupBox2.Size = new System.Drawing.Size(416, 48);
             this.groupBox2.TabIndex = 28;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "View Document";
+            // 
+            // radioPVWA
+            // 
+            this.radioPVWA.AutoSize = true;
+            this.radioPVWA.Location = new System.Drawing.Point(331, 22);
+            this.radioPVWA.Name = "radioPVWA";
+            this.radioPVWA.Size = new System.Drawing.Size(79, 17);
+            this.radioPVWA.TabIndex = 25;
+            this.radioPVWA.Text = "Use PVWA";
+            this.radioPVWA.UseVisualStyleBackColor = true;
+            // 
+            // radioBBV
+            // 
+            this.radioBBV.AutoSize = true;
+            this.radioBBV.Checked = true;
+            this.radioBBV.Location = new System.Drawing.Point(257, 22);
+            this.radioBBV.Name = "radioBBV";
+            this.radioBBV.Size = new System.Drawing.Size(68, 17);
+            this.radioBBV.TabIndex = 24;
+            this.radioBBV.TabStop = true;
+            this.radioBBV.Text = "Use BBV";
+            this.radioBBV.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
@@ -333,10 +359,11 @@
             this.groupBox3.Controls.Add(this.txtUsername);
             this.groupBox3.Controls.Add(this.txtPW);
             this.groupBox3.Controls.Add(this.txtURL);
+            this.groupBox3.Controls.Add(this.btnLogIn);
             this.groupBox3.Controls.Add(this.numEntID);
             this.groupBox3.Location = new System.Drawing.Point(16, 41);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(515, 77);
+            this.groupBox3.Size = new System.Drawing.Size(479, 105);
             this.groupBox3.TabIndex = 29;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Authentication";
@@ -344,7 +371,7 @@
             // chkSave
             // 
             this.chkSave.AutoSize = true;
-            this.chkSave.Location = new System.Drawing.Point(401, 49);
+            this.chkSave.Location = new System.Drawing.Point(95, 77);
             this.chkSave.Name = "chkSave";
             this.chkSave.Size = new System.Drawing.Size(108, 17);
             this.chkSave.TabIndex = 11;
@@ -357,16 +384,16 @@
             this.txtSessionID.Enabled = false;
             this.txtSessionID.Location = new System.Drawing.Point(59, 22);
             this.txtSessionID.Name = "txtSessionID";
-            this.txtSessionID.Size = new System.Drawing.Size(370, 20);
+            this.txtSessionID.Size = new System.Drawing.Size(406, 20);
             this.txtSessionID.TabIndex = 30;
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.btnCopy);
             this.groupBox4.Controls.Add(this.txtSessionID);
-            this.groupBox4.Location = new System.Drawing.Point(537, 41);
+            this.groupBox4.Location = new System.Drawing.Point(501, 41);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(435, 54);
+            this.groupBox4.Size = new System.Drawing.Size(471, 54);
             this.groupBox4.TabIndex = 31;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Session ID";
@@ -479,7 +506,6 @@
             this.Controls.Add(this.btnUpload);
             this.Controls.Add(this.btnSaveResults);
             this.Controls.Add(this.txtResponse);
-            this.Controls.Add(this.btnLogIn);
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -547,6 +573,8 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aPIGuideToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem servicesGuideToolStripMenuItem;
+        private System.Windows.Forms.RadioButton radioPVWA;
+        private System.Windows.Forms.RadioButton radioBBV;
     }
 }
 

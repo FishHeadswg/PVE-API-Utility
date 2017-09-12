@@ -16,9 +16,9 @@ namespace PVEAPIUtility
         public AboutBox()
         {
             InitializeComponent();
-            this.Text = string.Format("About {0}", AssemblyTitle);
+            this.Text = $"About {AssemblyTitle}";
             this.labelProductName.Text = AssemblyProduct;
-            this.labelVersion.Text = string.Format("Version {0}", AssemblyVersion);
+            this.labelVersion.Text = $"Version {AssemblyVersion}";
             this.labelCopyright.Text = AssemblyCopyright;
             this.labelCompanyName.Text = AssemblyCompany;
             this.textBoxDescription.Text = AssemblyDescription;

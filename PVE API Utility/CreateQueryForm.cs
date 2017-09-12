@@ -21,7 +21,6 @@ namespace PVEAPIUtility
         private List<ComboBox> condOps = new List<ComboBox>();
         private List<TextBox> condVals = new List<TextBox>();
         private List<Label> labels = new List<Label>();
-        private bool reset = false;
 
         public CreateQueryForm(string entityID, string sessionID, string hosturl)
         {
@@ -227,7 +226,6 @@ namespace PVEAPIUtility
         private void BtnReset_Click(object sender, EventArgs e)
         {
             ResetControls();
-            reset = true;
         }
 
         private void ResetControls()

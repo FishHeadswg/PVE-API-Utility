@@ -7,17 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace PVEAPIUtility
 {
     public partial class UploadForm : Form
     {
         private const int EM_SETCUEBANNER = 0x1501;
-        private bool reset = false;
         private List<TextBox> condFields = new List<TextBox>();
         private List<TextBox> condVals = new List<TextBox>();
         private List<Label> labels = new List<Label>();
@@ -72,7 +69,6 @@ namespace PVEAPIUtility
 
         private string BuildUploadQuery()
         {
-            string query;
             string fieldNames = string.Empty;
             string fieldVals = string.Empty;
             string base64 = string.Empty;
@@ -157,8 +153,7 @@ namespace PVEAPIUtility
 
             XmlElement infftNode = xmlquery.CreateElement("INFILEDATAFT");*/
 
-            query = string.Format(@"<PVE><FUNCTION><NAME>AttachNewDocToProjectEx</NAME><PARAMETERS><ENTITYID>{0}</ENTITYID><SESSIONID>{1}</SESSIONID><PARAMETERS/><SOURCEIP/><PROJID>{2}</PROJID><FIELDNAMES>{3}</FIELDNAMES><FIELDVALUES>{4}</FIELDVALUES><ORIGINALFILENAME>{5}</ORIGINALFILENAME><SAVEDFILE></SAVEDFILE><ORIGINALFILENAMEFT/><SAVEDFILEFT/><ADDTOFOLDER/><INFILEDATA types:dt=""bin.base64"" xmlns:types=""urn:schemas-microsoft-com:datatypes"">{6}</INFILEDATA><INFILEDATAFT/></PARAMETERS></FUNCTION></PVE>", entID, sessID, nupProjID.Value.ToString(), fieldNames, fieldVals, Path.GetFileName(txtFilePath.Text), base64);
-            return query;
+            return $@"<PVE><FUNCTION><NAME>AttachNewDocToProjectEx</NAME><PARAMETERS><ENTITYID>{entID}</ENTITYID><SESSIONID>{sessID}</SESSIONID><PARAMETERS/><SOURCEIP/><PROJID>{nupProjID.Value.ToString()}</PROJID><FIELDNAMES>{fieldNames}</FIELDNAMES><FIELDVALUES>{fieldVals}</FIELDVALUES><ORIGINALFILENAME>{Path.GetFileName(txtFilePath.Text)}</ORIGINALFILENAME><SAVEDFILE></SAVEDFILE><ORIGINALFILENAMEFT/><SAVEDFILEFT/><ADDTOFOLDER/><INFILEDATA types:dt=""bin.base64"" xmlns:types=""urn:schemas-microsoft-com:datatypes"">{base64}</INFILEDATA><INFILEDATAFT/></PARAMETERS></FUNCTION></PVE>";
         }
 
         private void BtnClose_Click(object sender, EventArgs e)
@@ -191,7 +186,7 @@ namespace PVEAPIUtility
             {
                 docID = XMLHelper.TryFindXmlNode(response, "NEWDOCID", out success).Trim();
                 if (success)
-                    MessageBox.Show(string.Format("Upload Successful:\n\nProject ID: {0}\nDocument ID: {1}", nupProjID.Value.ToString(), docID), "Upload Success");
+                    MessageBox.Show($"Upload Successful:\n\nProject ID: {nupProjID.Value.ToString()}\nDocument ID: {docID}", "Upload Success");
                 else
                     MessageBox.Show("Upload failed:\nCheck your query parameters and/or session ID.", "Upload Error");
                 txtFilePath.Clear();

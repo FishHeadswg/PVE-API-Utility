@@ -6,12 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Windows.Forms;
 
 namespace PVEAPIUtility
 {
@@ -103,7 +100,7 @@ namespace PVEAPIUtility
         /// <returns></returns>
         public static List<string> BuildFieldList(string entID, string sessID, string projID, string url, out bool success)
         {
-            string query = String.Format("<PVE><FUNCTION><NAME>ADLoadProject</NAME><PARAMETERS><ENTITYID>{0}</ENTITYID><SESSIONID>{1}</SESSIONID><SOURCEIP/><PROJID>{2}</PROJID></PARAMETERS></FUNCTION></PVE>", entID, sessID, projID);
+            string query = $"<PVE><FUNCTION><NAME>ADLoadProject</NAME><PARAMETERS><ENTITYID>{entID}</ENTITYID><SESSIONID>{sessID}</SESSIONID><SOURCEIP/><PROJID>{projID}</PROJID></PARAMETERS></FUNCTION></PVE>";
             string response = XMLHelper.SendXml(url, query);
             success = false;
             string projattrs = XMLHelper.TryFindXmlNode(response, "PROJATTRS", out success);
@@ -123,9 +120,9 @@ namespace PVEAPIUtility
             if (url.Contains("/httpinterface.aspx"))
                 return url;
             else if (url.EndsWith("/"))
-                return string.Format("{0}httpinterface.aspx", url);
+                return $"{url}httpinterface.aspx";
             else
-                return string.Format("{0}/httpinterface.aspx", url);
+                return $"{url}/httpinterface.aspx";
         }
     }
 }
