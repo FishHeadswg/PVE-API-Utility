@@ -158,10 +158,10 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnLogIn_Click(object sender, EventArgs e)
         {
-            if (btnLogIn.Text != "Log In")
+            if (btnLogIn.Text != "Login")
             {
                 TryKillSession();
-                btnLogIn.Text = "Log In";
+                btnLogIn.Text = "Login";
             }
             else
             {
@@ -214,7 +214,7 @@ namespace PVEAPIUtility
                 txtPW.Enabled = false;
                 txtUsername.Enabled = false;
                 txtURL.Enabled = false;
-                btnLogIn.Text = "Log Out";
+                btnLogIn.Text = "Logout";
             }
             catch
             {
@@ -565,48 +565,7 @@ namespace PVEAPIUtility
         /// <returns></returns>
         private DocSearchSvc.PVOPERATOR GetOp(string op)
         {
-            switch (op)
-            {
-                case "EQUAL":
-                    return DocSearchSvc.PVOPERATOR.EQUAL;
-
-                case "NOTEQUAL":
-                    return DocSearchSvc.PVOPERATOR.NOTEQUAL;
-
-                case "GREATERTHAN":
-                    return DocSearchSvc.PVOPERATOR.GREATERTHAN;
-
-                case "GREATERTHANOREQUAL":
-                    return DocSearchSvc.PVOPERATOR.GREATERTHANOREQUAL;
-
-                case "LESSTHAN":
-                    return DocSearchSvc.PVOPERATOR.LESSTHAN;
-
-                case "LESSTHANOREQUAL":
-                    return DocSearchSvc.PVOPERATOR.LESSTHANOREQUAL;
-
-                case "ISNULL":
-                    return DocSearchSvc.PVOPERATOR.ISNULL;
-
-                case "ISNOTNULL":
-                    return DocSearchSvc.PVOPERATOR.ISNOTNULL;
-
-                case "LIKE":
-                    return DocSearchSvc.PVOPERATOR.LIKE;
-
-                case "NOTLIKE":
-                    return DocSearchSvc.PVOPERATOR.NOTLIKE;
-
-                case "IN":
-                    return DocSearchSvc.PVOPERATOR.IN;
-
-                case "NOTIN":
-                    return DocSearchSvc.PVOPERATOR.NOTIN;
-
-                // should never reach this
-                default:
-                    return DocSearchSvc.PVOPERATOR.EQUAL;
-            }
+            return (DocSearchSvc.PVOPERATOR)Enum.Parse(typeof(DocSearchSvc.PVOPERATOR), op);
         }
 
         /// <summary>

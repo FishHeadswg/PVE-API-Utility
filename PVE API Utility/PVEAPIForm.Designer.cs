@@ -82,9 +82,9 @@
             // 
             this.btnLogIn.Location = new System.Drawing.Point(9, 73);
             this.btnLogIn.Name = "btnLogIn";
-            this.btnLogIn.Size = new System.Drawing.Size(68, 23);
+            this.btnLogIn.Size = new System.Drawing.Size(75, 23);
             this.btnLogIn.TabIndex = 6;
-            this.btnLogIn.Text = "Log In";
+            this.btnLogIn.Text = "Login";
             this.btnLogIn.UseVisualStyleBackColor = true;
             this.btnLogIn.Click += new System.EventHandler(this.BtnLogIn_Click);
             // 
@@ -371,7 +371,7 @@
             // chkSave
             // 
             this.chkSave.AutoSize = true;
-            this.chkSave.Location = new System.Drawing.Point(95, 77);
+            this.chkSave.Location = new System.Drawing.Point(365, 77);
             this.chkSave.Name = "chkSave";
             this.chkSave.Size = new System.Drawing.Size(108, 17);
             this.chkSave.TabIndex = 11;
