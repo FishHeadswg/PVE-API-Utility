@@ -6,6 +6,7 @@
 
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.IsolatedStorage;
@@ -20,7 +21,6 @@ using System.Windows.Forms;
 namespace PVEAPIUtility
 {
     using CustomExtensions;
-    using System.Diagnostics;
 
     /// <summary>
     /// Main form for the API utility.
