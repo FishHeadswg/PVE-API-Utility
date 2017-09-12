@@ -1,7 +1,7 @@
 ﻿/*
  * PVEAPIForm.cs
  * Utility's functions include logging in, constructing/sending API queries, opening documents, and attaching documents.
- * Follow the comments to complete the form.
+ * Follow the comments to complete the form (or simply search for *TO BE DONE*).
  */
 
 using Newtonsoft.Json;
@@ -147,8 +147,7 @@ namespace PVEAPIUtility
         private string BuildLoginQuery()
         {
             // *TO BE DONE*: Pass the entity ID, user name, and password to the LoginUserEx3 call from the form controls
-            var query = $"<PVE><FUNCTION><NAME>LoginUserEx3</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><USERNAME>{Username}</USERNAME><PASSWORD>{Password}</PASSWORD><SOURCEIP></SOURCEIP><CORELICTYPE></CORELICTYPE><CLIENTPINGABLE>TRUE</CLIENTPINGABLE><REMOTEAUTH>FALSE</REMOTEAUTH></PARAMETERS></FUNCTION></PVE>";
-            return query;
+            return $"<PVE><FUNCTION><NAME>LoginUserEx3</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><USERNAME>{Username}</USERNAME><PASSWORD>{Password}</PASSWORD><SOURCEIP></SOURCEIP><CORELICTYPE></CORELICTYPE><CLIENTPINGABLE>TRUE</CLIENTPINGABLE><REMOTEAUTH>FALSE</REMOTEAUTH></PARAMETERS></FUNCTION></PVE>";
         }
 
         /// <summary>
