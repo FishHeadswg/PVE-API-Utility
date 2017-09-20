@@ -1,35 +1,40 @@
 ﻿/*
- * XMLHelper.cs
- * Helper class for sending / searching XML.
+ * CustomExtension.cs
+ * Extensions for sending / searching XML strings and adding color support for RichTextBoxes.
  */
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace PVEAPIUtility
 {
-    public static class XMLHelper
+    /// <summary>
+    /// Extensions for sending / searching XML strings and adding color support for RichTextBoxes
+    /// </summary>
+    public static class CustomExtensions
     {
         /// <summary>
         /// Send an XML query to the server.
         /// </summary>
+        /// <param name="xmlString">XML-formatted query to send.</param>
         /// <param name="hostURL">URL to send the query to.</param>
-        /// <param name="xml">XML-formatted query to send.</param>
         /// <returns></returns>
-        public static string SendXml(string hostURL, string xml)
+        public static string SendXml(this string xmlString, string hostURL)
         {
             WebClient client = new WebClient()
             {
                 Credentials = CredentialCache.DefaultNetworkCredentials
             };
-            hostURL = SanitizeURL(hostURL);
+            hostURL = APIHelper.SanitizeURL(hostURL);
             try
             {
-                return client.UploadString(hostURL, xml);
+                return client.UploadString(hostURL, xmlString);
             }
             catch (Exception e)
             {
@@ -42,12 +47,12 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// Parses XML in the form of a string, searches for a specific XML node, and returns the value of the XML node.
+        /// Parses XML in the form of a string, searches for a specific XML node and returns the value of the XML node.
         /// </summary>
         /// <param name="xmlString"></param>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public static string TryFindXmlNode(string xmlString, string xmlNode, out bool success)
+        public static string TryFindXmlNode(this string xmlString, string xmlNode, out bool success)
         {
             StringBuilder output = new StringBuilder();
             try
@@ -57,7 +62,7 @@ namespace PVEAPIUtility
                 reader.ReadToFollowing(xmlNode);
                 output.AppendLine(reader.ReadElementContentAsString());
                 success = true;
-                return output.ToString();
+                return output.ToString().Trim();
             }
             catch
             {
@@ -72,7 +77,7 @@ namespace PVEAPIUtility
         /// <param name="xmlString"></param>
         /// <param name="xmlNode"></param>
         /// <returns></returns>
-        public static List<string> FindXmlNodes(string xmlString, string xmlNode)
+        public static List<string> FindXmlNodes(this string xmlString, string xmlNode)
         {
             List<string> nodeValues = new List<string>();
             using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
@@ -90,39 +95,18 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// Builds and returns a list of fields for the project as well as a success variable.
+        /// Appends supplied text to RichTextBox with the specified color.
         /// </summary>
-        /// <param name="entID"></param>
-        /// <param name="sessID"></param>
-        /// <param name="projID"></param>
-        /// <param name="url"></param>
-        /// <param name="success"></param>
-        /// <returns></returns>
-        public static List<string> BuildFieldList(string entID, string sessID, string projID, string url, out bool success)
+        /// <param name="box"></param>
+        /// <param name="text"></param>
+        /// <param name="color"></param>
+        public static void AppendText(this RichTextBox box, string text, Color color)
         {
-            string query = $"<PVE><FUNCTION><NAME>ADLoadProject</NAME><PARAMETERS><ENTITYID>{entID}</ENTITYID><SESSIONID>{sessID}</SESSIONID><SOURCEIP/><PROJID>{projID}</PROJID></PARAMETERS></FUNCTION></PVE>";
-            string response = XMLHelper.SendXml(url, query);
-            success = false;
-            string projattrs = XMLHelper.TryFindXmlNode(response, "PROJATTRS", out success);
-            List<String> fields = new List<string>();
-            if (success)
-                fields = XMLHelper.FindXmlNodes(projattrs, "NAME");
-            return fields;
-        }
-
-        /// <summary>
-        /// Add httpinterface.aspx to URL (if needed).
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        private static string SanitizeURL(string url)
-        {
-            if (url.Contains("/httpinterface.aspx"))
-                return url;
-            else if (url.EndsWith("/"))
-                return $"{url}httpinterface.aspx";
-            else
-                return $"{url}/httpinterface.aspx";
+            box.SelectionStart = box.TextLength;
+            box.SelectionLength = 0;
+            box.SelectionColor = color;
+            box.AppendText(text);
+            box.SelectionColor = box.ForeColor;
         }
     }
 }

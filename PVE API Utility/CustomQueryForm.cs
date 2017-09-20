@@ -7,8 +7,6 @@ using System.Windows.Forms;
 
 namespace PVEAPIUtility
 {
-    using CustomExtensions;
-
     public partial class CustomQueryForm : Form
     {
         private PVEAPIForm mainForm;
@@ -37,7 +35,7 @@ namespace PVEAPIUtility
         {
             try
             {
-                response = XMLHelper.SendXml(RootURL, txtXMLQuery.Text);
+                response = txtXMLQuery.Text.SendXml(RootURL);
             }
             catch
             {

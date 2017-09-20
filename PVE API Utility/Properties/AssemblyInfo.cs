@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Digitech Systems, LLC.")]
 [assembly: AssemblyProduct("PVE / ImageSilo API Utility")]
-[assembly: AssemblyCopyright("Author: Trevor Richardson")]
+[assembly: AssemblyCopyright("Trevor Richardson")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

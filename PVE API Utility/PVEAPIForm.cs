@@ -4,7 +4,6 @@
  * Follow the comments to complete the form (or simply search for *TO BE DONE*).
  */
 
-using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -14,14 +13,13 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 // *TO BE DONE*: You will need to add this DLL reference to the project to link the utility with PVE's COM interface.
 //// using PVDMSystem;
 
 namespace PVEAPIUtility
 {
-    using CustomExtensions;
-
     /// <summary>
     /// Main form for the API utility.
     /// </summary>
@@ -80,6 +78,9 @@ namespace PVEAPIUtility
             Rainbow = new[] { Color.Black, Color.Green, Color.Blue, Color.Indigo };
         }
 
+        /// <summary>
+        /// Batch operations.
+        /// </summary>
         public enum BatchOp
         {
             View = 0,
@@ -94,17 +95,17 @@ namespace PVEAPIUtility
         public Color[] Rainbow { get; }
 
         /// <summary>
-        /// Gets or sets entity ID.
+        /// Gets entity ID.
         /// </summary>
         public string EntID { get; private set; }
 
         /// <summary>
-        /// Gets or sets host URL.
+        /// Gets host URL.
         /// </summary>
         public string Url { get; private set; }
 
         /// <summary>
-        /// Gets or sets the session ID.
+        /// Gets the session ID.
         /// </summary>
         public string SessionID { get; private set; }
 
@@ -183,7 +184,7 @@ namespace PVEAPIUtility
 
             try
             {
-                response = XMLHelper.SendXml(Url, BuildLoginQuery());
+                response = BuildLoginQuery().SendXml(Url);
             }
             catch
             {
@@ -194,8 +195,8 @@ namespace PVEAPIUtility
             try
             {
                 // *TO BE DONE*: Find the SESSIONID node
-                SessionID = XMLHelper.TryFindXmlNode(response, "SESSIONID", out bool success).Trim();
-                int ping = Convert.ToInt32(XMLHelper.TryFindXmlNode(response, "PINGTIME", out success).Trim());
+                SessionID = response.TryFindXmlNode("SESSIONID", out bool success);
+                int ping = Convert.ToInt32(response.TryFindXmlNode("PINGTIME", out success));
                 if (ping != 0)
                 {
                     PingInterval = ping;
@@ -230,7 +231,7 @@ namespace PVEAPIUtility
                 try
                 {
                     var query = $"<PVE><FUNCTION><NAME>KillSession</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><SESSIONID>{SessionID}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>";
-                    XMLHelper.SendXml(Url, query);
+                    query.SendXml(Url);
                     btnCreateQuery.Enabled = false;
                     btnOpenDoc.Enabled = false;
                     btnUpload.Enabled = false;
@@ -296,13 +297,13 @@ namespace PVEAPIUtility
             {
                 var opInfo = new
                 {
-                    PROJECTID = Convert.ToString(numProjID.Value),  //Document project ID
-                    BATCHOPID = BatchOp.View,                       //see the above enum
-                    BATCHDOCIDS = "null",                           //used when using batch operation such as (print/email/export)
-                    DOCIDS = Convert.ToString(numDocID.Value),      //used to show the doc. Leave empty if batch operation
-                    INDEXNAMES = "index names pip delimited",       //used to populate the index grid
-                    INDEXVALUES = "index values pip delimited",     //used to populate the index grid
-                    SORTEDDOCIDS = ""                               //used by next/previous doc commands
+                    PROJECTID = Convert.ToString(numProjID.Value),  // Document project ID
+                    BATCHOPID = BatchOp.View,                       // see the above enum
+                    BATCHDOCIDS = "null",                           // used when using batch operation such as (print/email/export)
+                    DOCIDS = Convert.ToString(numDocID.Value),      // used to show the doc. Leave empty if batch operation
+                    INDEXNAMES = "index names pip delimited",       // used to populate the index grid
+                    INDEXVALUES = "index values pip delimited",     // used to populate the index grid
+                    SORTEDDOCIDS = ""                               // used by next/previous doc commands
                 };
                 String url = $"LaunchPVWA:op?entID={EntID}&sessID={SessionID}&user={Username}&server={Url}/HTTPInterface.aspx&pvAuth=&op=AXDocViewer&opInfo={JsonConvert.SerializeObject(opInfo)}";
                 Process.Start(url);
@@ -370,14 +371,14 @@ namespace PVEAPIUtility
             try
             {
                 BuildQuery();
-                docSearchVars.pvResponse = QueryExecution(Url, docSearchVars.pvSession, docSearchVars.pvQuery);
+                docSearchVars.PVResponse = QueryExecution(Url, docSearchVars.PVSession, docSearchVars.PVQuery);
                 txtResponse.AppendText(
                     Environment.NewLine + "SEARCH QUERY RESPONSE [" + queryCount + "] :" + Environment.NewLine +
-                    (createQueryForm.RCO ? docSearchVars.pvResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() :
-                    docSearchVars.pvResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT.ToString()) + Environment.NewLine,
+                    (createQueryForm.RCO ? docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() :
+                    docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT.ToString()) + Environment.NewLine,
                     Rainbow[NextColor()]);
                 txtResponse.Focus();
-                docSearchVars.pvResponse = new DocSearchSvc.PVQUERYRESPONSE();
+                docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
                 ++queryCount;
             }
             catch (Exception ex)
@@ -385,11 +386,11 @@ namespace PVEAPIUtility
                 try
                 {
                     // Check if there were no query results simply because there were no matches
-                    if (docSearchVars.pvResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT == 0)
+                    if (docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT == 0)
                     {
                         txtResponse.AppendText(
                             Environment.NewLine + "SEARCH QUERY RESPONSE[" + queryCount + "] :" + Environment.NewLine +
-                            docSearchVars.pvResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() + Environment.NewLine,
+                            docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() + Environment.NewLine,
                             Rainbow[NextColor()]);
                         txtResponse.Focus();
                         ++queryCount;
@@ -401,7 +402,7 @@ namespace PVEAPIUtility
                     ////throw;
                 }
 
-                docSearchVars.pvResponse = new DocSearchSvc.PVQUERYRESPONSE();
+                docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
             }
         }
 
@@ -411,26 +412,26 @@ namespace PVEAPIUtility
         private void BuildQuery()
         {
             // Reset search criteria
-            docSearchVars.pvSession = new DocSearchSvc.PVSESSION();
-            docSearchVars.pvQuery = new DocSearchSvc.PVQUERY();
-            docSearchVars.pvProjQuery = new DocSearchSvc.PVPROJECTQUERY();
-            docSearchVars.pvField = new DocSearchSvc.PVFIELD();
-            docSearchVars.pvCond = new DocSearchSvc.PVCONDITION();
-            docSearchVars.pvConds = new DocSearchSvc.PVCONDITION[createQueryForm.CondFieldNames.Length];
-            docSearchVars.pvSort = new DocSearchSvc.PVSORT();
+            docSearchVars.PVSession = new DocSearchSvc.PVSESSION();
+            docSearchVars.PVQuery = new DocSearchSvc.PVQUERY();
+            docSearchVars.PVProjQuery = new DocSearchSvc.PVPROJECTQUERY();
+            docSearchVars.PVField = new DocSearchSvc.PVFIELD();
+            docSearchVars.PVCond = new DocSearchSvc.PVCONDITION();
+            docSearchVars.PVConds = new DocSearchSvc.PVCONDITION[createQueryForm.CondFieldNames.Length];
+            docSearchVars.PVSort = new DocSearchSvc.PVSORT();
 
-            docSearchVars.pvSession.ENTITYID = Convert.ToInt32(EntID);
-            docSearchVars.pvSession.SESSIONID = SessionID;
-            docSearchVars.pvProjQuery.PROJECTID = createQueryForm.ProjID;
-            docSearchVars.pvProjQuery.FIELDSTORETURN = ReturnFields(createQueryForm.ReturnFields);
+            docSearchVars.PVSession.ENTITYID = Convert.ToInt32(EntID);
+            docSearchVars.PVSession.SESSIONID = SessionID;
+            docSearchVars.PVProjQuery.PROJECTID = createQueryForm.ProjID;
+            docSearchVars.PVProjQuery.FIELDSTORETURN = ReturnFields(createQueryForm.ReturnFields);
 
             if (createQueryForm.CondFieldNames.Length > 1)
             {
-                docSearchVars.pvCond.CONDITIONGROUP = true;
-                docSearchVars.pvCond.CONDITIONCONNECTOR = (createQueryForm.SearchType == "AND") ? DocSearchSvc.PVBOOLEAN.AND : DocSearchSvc.PVBOOLEAN.OR;
+                docSearchVars.PVCond.CONDITIONGROUP = true;
+                docSearchVars.PVCond.CONDITIONCONNECTOR = (createQueryForm.SearchType == "AND") ? DocSearchSvc.PVBOOLEAN.AND : DocSearchSvc.PVBOOLEAN.OR;
                 for (int i = 0; i < createQueryForm.CondFieldNames.Length; ++i)
                 {
-                    docSearchVars.pvConds[i] = new DocSearchSvc.PVCONDITION()
+                    docSearchVars.PVConds[i] = new DocSearchSvc.PVCONDITION()
                     {
                         FIELDNAME = createQueryForm.CondFieldNames[i],
                         OPERATOR = GetOp(createQueryForm.Ops[i]),
@@ -438,21 +439,21 @@ namespace PVEAPIUtility
                     };
                 }
 
-                docSearchVars.pvCond.CONDITIONS = docSearchVars.pvConds;
+                docSearchVars.PVCond.CONDITIONS = docSearchVars.PVConds;
             }
             else
             {
-                docSearchVars.pvCond.FIELDNAME = createQueryForm.CondFieldNames[0];
-                docSearchVars.pvCond.OPERATOR = GetOp(createQueryForm.Ops[0]);
-                docSearchVars.pvCond.QUERYVALUE = createQueryForm.Values[0];
+                docSearchVars.PVCond.FIELDNAME = createQueryForm.CondFieldNames[0];
+                docSearchVars.PVCond.OPERATOR = GetOp(createQueryForm.Ops[0]);
+                docSearchVars.PVCond.QUERYVALUE = createQueryForm.Values[0];
             }
 
-            docSearchVars.pvProjQuery.CONDITION = docSearchVars.pvCond;
-            docSearchVars.pvSort.FIELDNAME = (createQueryForm.SortFieldName == string.Empty) ? "DOCID" : createQueryForm.SortFieldName;
-            docSearchVars.pvSort.SORTORDER = DocSearchSvc.PVSORTORDER.ASCENDING;
-            docSearchVars.pvProjQuery.RETURNCOUNTONLY = createQueryForm.RCO;
-            docSearchVars.pvProjQuery.SORTFIELDS = new DocSearchSvc.PVSORT[] { docSearchVars.pvSort };
-            docSearchVars.pvQuery.PROJECTQUERIES = new DocSearchSvc.PVPROJECTQUERY[] { docSearchVars.pvProjQuery };
+            docSearchVars.PVProjQuery.CONDITION = docSearchVars.PVCond;
+            docSearchVars.PVSort.FIELDNAME = (createQueryForm.SortFieldName == string.Empty) ? "DOCID" : createQueryForm.SortFieldName;
+            docSearchVars.PVSort.SORTORDER = DocSearchSvc.PVSORTORDER.ASCENDING;
+            docSearchVars.PVProjQuery.RETURNCOUNTONLY = createQueryForm.RCO;
+            docSearchVars.PVProjQuery.SORTFIELDS = new DocSearchSvc.PVSORT[] { docSearchVars.PVSort };
+            docSearchVars.PVQuery.PROJECTQUERIES = new DocSearchSvc.PVPROJECTQUERY[] { docSearchVars.PVProjQuery };
         }
 
         /// <summary>
@@ -503,6 +504,7 @@ namespace PVEAPIUtility
 
             // Set endpoint
             mySearchClient.Endpoint.Address = new EndpointAddress($"{conurl}/Services/DocumentSearch/DocumentSearch.svc");
+
             // Check for SSL (e.g., Silo).
             if (conurl.ToLower().Contains("https"))
                 mySearchClient.Endpoint.Binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport);
@@ -600,7 +602,8 @@ namespace PVEAPIUtility
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AboutBox abtForm = new AboutBox();
-            abtForm.Location = new Point(this.Location.X + (this.Width - abtForm.Width) / 2,
+            abtForm.Location = new Point(
+                this.Location.X + (this.Width - abtForm.Width) / 2,
                 this.Location.Y + (this.Height - abtForm.Height) / 2);
             abtForm.Show(this);
         }
@@ -608,7 +611,7 @@ namespace PVEAPIUtility
         private void PingSession(object sender, EventArgs e)
         {
             string pingQuery = $"<PVE><FUNCTION><NAME>PingSession</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><SESSIONID>{SessionID}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>";
-            XMLHelper.SendXml(Url, pingQuery);
+            pingQuery.SendXml(Url);
         }
 
         /// <summary>
@@ -782,38 +785,14 @@ namespace PVEAPIUtility
         /// </summary>
         private struct DocSearchVars
         {
-            public DocSearchSvc.PVSESSION pvSession;
-            public DocSearchSvc.PVQUERY pvQuery;
-            public DocSearchSvc.PVPROJECTQUERY pvProjQuery;
-            public DocSearchSvc.PVFIELD pvField;
-            public DocSearchSvc.PVCONDITION pvCond;
-            public DocSearchSvc.PVCONDITION[] pvConds;
-            public DocSearchSvc.PVSORT pvSort;
-            public DocSearchSvc.PVQUERYRESPONSE pvResponse;
-        }
-    }
-}
-
-/// <summary>
-/// Simple extension for adding a color parameter to AppendText.
-/// </summary>
-namespace CustomExtensions
-{
-    public static class RichTextBoxExtensions
-    {
-        /// <summary>
-        /// Appends supplied text to RichTextBox with the specified color.
-        /// </summary>
-        /// <param name="box"></param>
-        /// <param name="text"></param>
-        /// <param name="color"></param>
-        public static void AppendText(this RichTextBox box, string text, Color color)
-        {
-            box.SelectionStart = box.TextLength;
-            box.SelectionLength = 0;
-            box.SelectionColor = color;
-            box.AppendText(text);
-            box.SelectionColor = box.ForeColor;
+            public DocSearchSvc.PVSESSION PVSession;
+            public DocSearchSvc.PVQUERY PVQuery;
+            public DocSearchSvc.PVPROJECTQUERY PVProjQuery;
+            public DocSearchSvc.PVFIELD PVField;
+            public DocSearchSvc.PVCONDITION PVCond;
+            public DocSearchSvc.PVCONDITION[] PVConds;
+            public DocSearchSvc.PVSORT PVSort;
+            public DocSearchSvc.PVQUERYRESPONSE PVResponse;
         }
     }
 }

@@ -51,12 +51,13 @@ namespace PVEAPIUtility
         private void BuildIndexes()
         {
             fieldList.Clear();
-            fieldList = XMLHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success);
+            fieldList = APIHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success);
             if (!success)
             {
                 MessageBox.Show("Invalid Project ID");
                 return;
             }
+
             indexTable.RowCount = fieldList.Count;
             int i = 0;
             foreach (string field in fieldList)
@@ -181,10 +182,10 @@ namespace PVEAPIUtility
                 return;
             }
 
-            response = XMLHelper.SendXml(url, BuildUploadQuery());
+            response = BuildUploadQuery().SendXml(url);
             try
             {
-                docID = XMLHelper.TryFindXmlNode(response, "NEWDOCID", out success).Trim();
+                docID = response.TryFindXmlNode("NEWDOCID", out success);
                 if (success)
                     MessageBox.Show($"Upload Successful:\n\nProject ID: {nupProjID.Value.ToString()}\nDocument ID: {docID}", "Upload Success");
                 else

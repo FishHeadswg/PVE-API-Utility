@@ -163,7 +163,7 @@ namespace PVEAPIUtility
         /// <param name="cBox"></param>
         private bool TrySetCBox(ComboBox cBox)
         {
-            string[] projectFields = XMLHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success).ToArray();
+            string[] projectFields = APIHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success).ToArray();
             if (!success)
             {
                 MessageBox.Show("Invalid Project ID.");

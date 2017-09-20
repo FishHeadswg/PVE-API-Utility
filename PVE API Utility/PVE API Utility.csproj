@@ -93,6 +93,7 @@
     <Compile Include="AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomExtensions.cs" />
     <Compile Include="RijndaelManagedEncryption.cs" />
     <Compile Include="CustomQueryForm.cs">
       <SubType>Form</SubType>
@@ -131,7 +132,7 @@
     <Compile Include="UploadForm.Designer.cs">
       <DependentUpon>UploadForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="XMLHelper.cs" />
+    <Compile Include="APIHelper.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>
