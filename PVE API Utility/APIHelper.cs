@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using PVEAPIUtility.CustomExtensions;
 
 namespace PVEAPIUtility
 {
@@ -27,7 +28,7 @@ namespace PVEAPIUtility
             string projattrs = response.TryFindXmlNode("PROJATTRS", out success);
             List<String> fields = new List<string>();
             if (success)
-                fields = projattrs.FindXmlNodes("NAME");
+                fields = projattrs.TryFindXmlNodes("NAME");
             return fields;
         }
 

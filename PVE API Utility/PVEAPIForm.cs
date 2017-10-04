@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using PVEAPIUtility.CustomExtensions;
 
 // *TO BE DONE*: You will need to add this DLL reference to the project to link the utility with PVE's COM interface.
 //// using PVDMSystem;
@@ -506,10 +507,14 @@ namespace PVEAPIUtility
             mySearchClient.Endpoint.Address = new EndpointAddress($"{conurl}/Services/DocumentSearch/DocumentSearch.svc");
 
             // Check for SSL (e.g., Silo).
-            if (conurl.ToLower().Contains("https"))
+            if (conurl.ToLower().StartsWith("https") || conurl.ToLower().StartsWith("login.imagesilo"))
+            {
                 mySearchClient.Endpoint.Binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport);
+            }
             else
+            {
                 mySearchClient.Endpoint.Binding = new BasicHttpBinding();
+            }
 
             // Send SOAP envelope
             try
@@ -566,6 +571,10 @@ namespace PVEAPIUtility
         /// <returns></returns>
         private DocSearchSvc.PVOPERATOR GetOp(string op)
         {
+            if (string.IsNullOrEmpty(op))
+            {
+                throw new ArgumentNullException();
+            }
             return (DocSearchSvc.PVOPERATOR)Enum.Parse(typeof(DocSearchSvc.PVOPERATOR), op);
         }
 

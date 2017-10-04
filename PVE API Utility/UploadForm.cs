@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using PVEAPIUtility.CustomExtensions;
 
 namespace PVEAPIUtility
 {
@@ -25,6 +26,10 @@ namespace PVEAPIUtility
 
         public UploadForm(string entID, string sessID, string url)
         {
+            if (string.IsNullOrEmpty(entID) || string.IsNullOrEmpty(sessID) || string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentNullException();
+            }
             InitializeComponent();
             this.entID = entID;
             this.sessID = sessID;

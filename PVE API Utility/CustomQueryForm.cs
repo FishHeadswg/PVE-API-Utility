@@ -4,6 +4,9 @@
 
 using System;
 using System.Windows.Forms;
+using System.Xml.Linq;
+using PVEAPIUtility.CustomExtensions;
+using System.Text;
 
 namespace PVEAPIUtility
 {
@@ -14,6 +17,10 @@ namespace PVEAPIUtility
 
         public CustomQueryForm(PVEAPIForm form, string url)
         {
+            if (form == null || string.IsNullOrEmpty(url))
+            {
+                throw new ArgumentNullException();
+            }
             InitializeComponent();
             mainForm = form;
             RootURL = url;
@@ -42,9 +49,10 @@ namespace PVEAPIUtility
                 throw;
             }
 
-            response = System.Xml.Linq.XDocument.Parse(response).ToString();
-            response = response.Replace("&gt;", ">");
-            response = response.Replace("&lt;", "<");
+            response = XDocument.Parse(response).ToString();
+            response = response
+                .Replace("&gt;", ">")
+                .Replace("&lt;", "<");
             mainForm.txtResponse.AppendText(Environment.NewLine + "CUSTOM QUERY RESPONSE: " + Environment.NewLine + response + Environment.NewLine, mainForm.Rainbow[mainForm.NextColor()]);
             Hide();
             mainForm.txtResponse.Focus();
@@ -54,7 +62,7 @@ namespace PVEAPIUtility
         {
             try
             {
-                txtXMLQuery.Text = System.Xml.Linq.XDocument.Parse(txtXMLQuery.Text).ToString();
+                txtXMLQuery.Text = XDocument.Parse(txtXMLQuery.Text).ToString();
             }
             catch
             {

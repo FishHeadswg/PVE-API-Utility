@@ -24,6 +24,10 @@ namespace PVEAPIUtility
 
         public CreateQueryForm(string entityID, string sessionID, string hosturl)
         {
+            if (string.IsNullOrEmpty(entityID) || string.IsNullOrEmpty(sessionID) || string.IsNullOrEmpty(hosturl))
+            {
+                throw new ArgumentNullException();
+            }
             InitializeComponent();
             entID = entityID;
             sessID = sessionID;
@@ -136,8 +140,12 @@ namespace PVEAPIUtility
         /// <returns>Returns new Operator combobox.</returns>
         private ComboBox WomboCombo(string type, ComboBox cBox)
         {
+            if (string.IsNullOrEmpty(type) || cBox == null)
+            {
+                throw new ArgumentNullException();
+            }
             cBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            cBox.Items.AddRange(new object[]
+            cBox.Items.AddRange(new[]
             {
             "EQUAL",
             "NOTEQUAL",
@@ -163,6 +171,11 @@ namespace PVEAPIUtility
         /// <param name="cBox"></param>
         private bool TrySetCBox(ComboBox cBox)
         {
+            if (cBox == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             string[] projectFields = APIHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success).ToArray();
             if (!success)
             {
@@ -170,9 +183,9 @@ namespace PVEAPIUtility
                 return false;
             }
 
+            var autocomp = new AutoCompleteStringCollection();
             cBox.Items.Clear();
             cBox.Items.AddRange(projectFields);
-            AutoCompleteStringCollection autocomp = new AutoCompleteStringCollection();
             autocomp.AddRange(projectFields);
             cBox.AutoCompleteCustomSource = autocomp;
             cBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
