@@ -178,6 +178,11 @@
             0,
             0,
             0});
+            this.nupProjID.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.nupProjID.Name = "nupProjID";
             this.nupProjID.Size = new System.Drawing.Size(50, 20);
             this.nupProjID.TabIndex = 1;
@@ -280,7 +285,6 @@
             // 
             // CreateQueryForm
             // 
-            ////this.AcceptButton = this.btnSave;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 305);

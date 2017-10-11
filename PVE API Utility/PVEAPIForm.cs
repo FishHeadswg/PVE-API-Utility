@@ -5,6 +5,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -26,11 +27,6 @@ namespace PVEAPIUtility
     /// </summary>
     public partial class PVEAPIForm : Form
     {
-        /// <summary>
-        /// Keeps count of sent queries.
-        /// </summary>
-        private int queryCount;
-
         /// <summary>
         /// Cycles through colors for returned queries to help separate them.
         /// </summary>
@@ -149,7 +145,8 @@ namespace PVEAPIUtility
         private string BuildLoginQuery()
         {
             // *TO BE DONE*: Pass the entity ID, user name, and password to the LoginUserEx3 call from the form controls
-            return $"<PVE><FUNCTION><NAME>LoginUserEx3</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><USERNAME>{Username}</USERNAME><PASSWORD>{Password}</PASSWORD><SOURCEIP></SOURCEIP><CORELICTYPE></CORELICTYPE><CLIENTPINGABLE>TRUE</CLIENTPINGABLE><REMOTEAUTH>FALSE</REMOTEAUTH></PARAMETERS></FUNCTION></PVE>";
+            var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "USERNAME", Username }, { "PASSWORD", Password }, { "SOURCEIP", "" }, { "CORELICTYPE", "" }, { "CLIENTPINGABLE", "TRUE" }, { "REMOTEAUTH", "FALSE" } };
+            return APIHelper.BuildPVEQuery("LoginUserEx3", parameters);
         }
 
         /// <summary>
@@ -205,16 +202,8 @@ namespace PVEAPIUtility
                 }
 
                 txtSessionID.Text = SessionID;
-                btnCreateQuery.Enabled = true;
-                btnOpenDoc.Enabled = true;
-                btnUpload.Enabled = true;
-                btnCustom.Enabled = true;
-                numDocID.Enabled = true;
-                numProjID.Enabled = true;
-                numEntID.Enabled = false;
-                txtPW.Enabled = false;
-                txtUsername.Enabled = false;
-                txtURL.Enabled = false;
+                btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
+                numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
                 btnLogIn.Text = "Logout";
             }
             catch
@@ -231,19 +220,11 @@ namespace PVEAPIUtility
             if (SessionID != null)
                 try
                 {
-                    var query = $"<PVE><FUNCTION><NAME>KillSession</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><SESSIONID>{SessionID}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>";
+                    var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
+                    var query = APIHelper.BuildPVEQuery("KillSession", parameters);
                     query.SendXml(Url);
-                    btnCreateQuery.Enabled = false;
-                    btnOpenDoc.Enabled = false;
-                    btnUpload.Enabled = false;
-                    btnCustom.Enabled = false;
-                    btnSendQuery.Enabled = false;
-                    numDocID.Enabled = false;
-                    numProjID.Enabled = false;
-                    numEntID.Enabled = true;
-                    txtPW.Enabled = true;
-                    txtUsername.Enabled = true;
-                    txtURL.Enabled = true;
+                    btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = btnSendQuery.Enabled = numDocID.Enabled = numProjID.Enabled = false;
+                    numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
                     txtSessionID.Clear();
                     pingTimer.Stop();
                 }
@@ -374,13 +355,11 @@ namespace PVEAPIUtility
                 BuildQuery();
                 docSearchVars.PVResponse = QueryExecution(Url, docSearchVars.PVSession, docSearchVars.PVQuery);
                 txtResponse.AppendText(
-                    Environment.NewLine + "SEARCH QUERY RESPONSE [" + queryCount + "] :" + Environment.NewLine +
                     (createQueryForm.RCO ? docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() :
-                    docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT.ToString()) + Environment.NewLine,
+                    docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT.ToString()) + Environment.NewLine + Environment.NewLine,
                     Rainbow[NextColor()]);
                 txtResponse.Focus();
                 docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
-                ++queryCount;
             }
             catch (Exception ex)
             {
@@ -390,11 +369,9 @@ namespace PVEAPIUtility
                     if (docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT == 0)
                     {
                         txtResponse.AppendText(
-                            Environment.NewLine + "SEARCH QUERY RESPONSE[" + queryCount + "] :" + Environment.NewLine +
-                            docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() + Environment.NewLine,
+                            docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() + Environment.NewLine + Environment.NewLine,
                             Rainbow[NextColor()]);
                         txtResponse.Focus();
-                        ++queryCount;
                     }
                 }
                 catch
@@ -412,7 +389,7 @@ namespace PVEAPIUtility
         /// </summary>
         private void BuildQuery()
         {
-            // Reset search criteria
+            // Build/Reset search criteria
             docSearchVars.PVSession = new DocSearchSvc.PVSESSION();
             docSearchVars.PVQuery = new DocSearchSvc.PVQUERY();
             docSearchVars.PVProjQuery = new DocSearchSvc.PVPROJECTQUERY();
@@ -619,7 +596,8 @@ namespace PVEAPIUtility
 
         private void PingSession(object sender, EventArgs e)
         {
-            string pingQuery = $"<PVE><FUNCTION><NAME>PingSession</NAME><PARAMETERS><ENTITYID>{EntID}</ENTITYID><SESSIONID>{SessionID}</SESSIONID><SOURCEIP></SOURCEIP></PARAMETERS></FUNCTION></PVE>";
+            var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
+            var pingQuery = APIHelper.BuildPVEQuery("PingSession", parameters);
             pingQuery.SendXml(Url);
         }
 
@@ -769,7 +747,7 @@ namespace PVEAPIUtility
         {
             try
             {
-                System.Diagnostics.Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVision_Enterprise_APIGuide.pdf");
+                Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVision_Enterprise_APIGuide.pdf");
             }
             catch
             {
@@ -781,7 +759,7 @@ namespace PVEAPIUtility
         {
             try
             {
-                System.Diagnostics.Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVisionEnterpriseServices.pdf");
+                Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVisionEnterpriseServices.pdf");
             }
             catch
             {

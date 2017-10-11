@@ -54,10 +54,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>D1A03C35D1266FA304E4A1478ABDF39EDA73A520</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>95A4E850212D25FB7AC61A2991BE7B76ABF438FA</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>TestApp_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PVE API Utility_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -67,6 +67,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -177,6 +180,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="PVE API Utility_TemporaryKey.pfx" />
     <None Include="Service References\DocSearchSvc\DocumentSearch.wsdl" />
     <None Include="Service References\DocSearchSvc\DocumentSearch.xsd">
       <SubType>Designer</SubType>

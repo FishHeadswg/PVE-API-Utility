@@ -186,6 +186,7 @@ namespace PVEAPIUtility
             var autocomp = new AutoCompleteStringCollection();
             cBox.Items.Clear();
             cBox.Items.AddRange(projectFields);
+            cBox.SelectedIndex = 0;
             autocomp.AddRange(projectFields);
             cBox.AutoCompleteCustomSource = autocomp;
             cBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -243,44 +244,52 @@ namespace PVEAPIUtility
 
         private void ResetControls()
         {
-            foreach (Control control in this.Controls)
+            foreach (Control ctrl in Controls)
             {
-                if (control is TextBox textBox)
+                switch (ctrl)
                 {
-                    textBox.Text = null;
-                }
+                    case TextBox tBox:
+                        tBox.Text = null;
+                        break;
 
-                if (control is ComboBox comboBox)
-                {
-                    if (comboBox.Items.Count > 0 && comboBox != cmbField0)
-                        comboBox.SelectedIndex = 0;
-                }
+                    case ComboBox cBox:
+                        if (cBox.Items.Count > 0 && cBox != cmbField0)
+                        {
+                            cBox.SelectedIndex = 0;
+                        }
+                        break;
 
-                if (control is CheckBox checkBox)
-                {
-                    checkBox.Checked = false;
-                }
-            }
+                    case CheckBox chkBox:
+                        chkBox.Checked = false;
+                        break;
 
-            List<Control> listControls = this.condPanel.Controls.Cast<Control>().ToList();
+                    case FlowLayoutPanel flp:
+                        List<Control> listControls = flp.Controls.Cast<Control>().ToList();
 
-            foreach (Control flowControl in listControls)
-            {
-                if (flowControl != lblFName0 && flowControl != lblOp0 && flowControl != lblVal0 && flowControl != cmbField0 && flowControl != cmbOp0 && flowControl != txtValue0)
-                {
-                    condPanel.Controls.Remove(flowControl);
-                    flowControl.Dispose();
-                }
+                        foreach (Control flowControl in listControls)
+                        {
+                            if (flowControl.Name == "")
+                            {
+                                condPanel.Controls.Remove(flowControl);
+                                flowControl.Dispose();
+                                continue;
+                            }
 
-                if (flowControl is TextBox textBox)
-                {
-                    textBox.Text = null;
-                }
+                            if (flowControl is TextBox tBox2)
+                            {
+                                tBox2.Text = null;
+                            }
 
-                if (flowControl is ComboBox comboBox)
-                {
-                    if (comboBox.Items.Count > 0)
-                        comboBox.SelectedIndex = 0;
+                            if (flowControl is ComboBox cBox2)
+                            {
+                                if (cBox2.Items.Count > 0)
+                                    cBox2.SelectedIndex = 0;
+                            }
+                        }
+                        break;
+
+                    default:
+                        break;
                 }
             }
 

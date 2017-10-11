@@ -159,7 +159,10 @@ namespace PVEAPIUtility
 
             XmlElement infftNode = xmlquery.CreateElement("INFILEDATAFT");*/
 
-            return $@"<PVE><FUNCTION><NAME>AttachNewDocToProjectEx</NAME><PARAMETERS><ENTITYID>{entID}</ENTITYID><SESSIONID>{sessID}</SESSIONID><PARAMETERS/><SOURCEIP/><PROJID>{nupProjID.Value.ToString()}</PROJID><FIELDNAMES>{fieldNames}</FIELDNAMES><FIELDVALUES>{fieldVals}</FIELDVALUES><ORIGINALFILENAME>{Path.GetFileName(txtFilePath.Text)}</ORIGINALFILENAME><SAVEDFILE></SAVEDFILE><ORIGINALFILENAMEFT/><SAVEDFILEFT/><ADDTOFOLDER/><INFILEDATA types:dt=""bin.base64"" xmlns:types=""urn:schemas-microsoft-com:datatypes"">{base64}</INFILEDATA><INFILEDATAFT/></PARAMETERS></FUNCTION></PVE>";
+            var parameters = new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "PARAMETERS", "" }, { "SOURCEIP", "" }, { "PROJID", nupProjID.Value.ToString() }, { "FIELDNAMES", fieldNames }, { "FIELDVALUES", fieldVals }, { "ORIGINALFILENAME", Path.GetFileName(txtFilePath.Text) }, { "SAVEDFILE", "" }, { "ORIGINALFILENAMEFT", "" }, { "SAVEDFILEFT", "" }, { "ADDTOFOLDER", "" }, { "INFILEDATA", base64 }, { "INFILEDATAFT", "" } };
+            var query = APIHelper.BuildPVEQuery("AttachNewDocToProjectEx", parameters);
+
+            return query.ReplaceFirst("INFILEDATA", "INFILEDATA types:dt=\"bin.base64\" xmlns:types=\"urn:schemas-microsoft-com:datatypes\"");
         }
 
         private void BtnClose_Click(object sender, EventArgs e)

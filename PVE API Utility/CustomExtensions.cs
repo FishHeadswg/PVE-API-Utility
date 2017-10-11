@@ -84,7 +84,7 @@ namespace PVEAPIUtility
             /// <param name="xmlString"></param>
             /// <param name="xmlNode"></param>
             /// <returns></returns>
-            public static List<string> TryFindXmlNodes(this string xmlString, string xmlNode)
+            public static List<string> TryFindXmlNodes(this string xmlString, string xmlNode, out bool success)
             {
                 List<string> nodeValues = new List<string>();
                 try
@@ -103,9 +103,28 @@ namespace PVEAPIUtility
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
+                    success = false;
                 }
 
+                success = true;
                 return nodeValues;
+            }
+
+            /// <summary>
+            /// Replaces only the first occurrence of the search text in the string.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="search"></param>
+            /// <param name="replace"></param>
+            /// <returns></returns>
+            public static string ReplaceFirst(this string text, string search, string replace)
+            {
+                int pos = text.IndexOf(search);
+                if (pos < 0)
+                {
+                    return text;
+                }
+                return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
             }
 
             /// <summary>
