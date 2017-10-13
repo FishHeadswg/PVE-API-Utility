@@ -109,60 +109,10 @@ namespace PVEAPIUtility
                 MessageBox.Show("Unable to read file:\n" + e.Message);
             }
 
-            /*
-            XmlDocument xmlquery = new XmlDocument();
-            XmlElement pve = xmlquery.CreateElement("PVE");
-            xmlquery.AppendChild(pve);
-            XmlElement function = xmlquery.CreateElement("FUNCTION");
-            pve.AppendChild(function);
-            XmlElement name = xmlquery.CreateElement("NAME");
-            XmlText funcName = xmlquery.CreateTextNode("AttachNewDocToProjectEx");
-            name.AppendChild(funcName);
-            function.AppendChild(name);
-
-            XmlElement parameters = xmlquery.CreateElement("PARAMETERS");
-
-            XmlElement entid = xmlquery.CreateElement("ENTITYID");
-            entid.AppendChild(xmlquery.CreateTextNode(entID));
-
-            XmlElement sessIDNode = xmlquery.CreateElement("SESSIONID");
-            sessIDNode.AppendChild(xmlquery.CreateTextNode(sessID));
-
-            XmlElement paramNode = xmlquery.CreateElement("PARAMETERS");
-
-            XmlElement srcIPNode = xmlquery.CreateElement("SOURCEIP");
-
-            XmlElement projIDNode = xmlquery.CreateElement("PROJID");
-            projIDNode.AppendChild(xmlquery.CreateTextNode(nupProjID.Value.ToString()));
-
-            XmlElement fieldNNode = xmlquery.CreateElement("FIELDNAMES");
-            fieldNNode.AppendChild(xmlquery.CreateTextNode(fieldNames));
-
-            XmlElement fieldValNode = xmlquery.CreateElement("FIELDVALUES");
-            fieldValNode.AppendChild(xmlquery.CreateTextNode(fieldVals));
-
-            XmlElement ofnNode = xmlquery.CreateElement("ORIGINALFILENAME");
-            ofnNode.AppendChild(xmlquery.CreateTextNode(Path.GetFileName(txtFilePath.Text)));
-
-            XmlElement sfNode = xmlquery.CreateElement("SAVEDFILE");
-
-            XmlElement ofnftNode = xmlquery.CreateElement("ORIGINALFILENAMEFT");
-
-            XmlElement sfftNode = xmlquery.CreateElement("SAVEDFILEFT");
-
-            XmlElement folderNode = xmlquery.CreateElement("ADDTOFOLDER");
-
-            XmlElement ifdNode = xmlquery.CreateElement("INFILEDATA");
-            ifdNode.SetAttribute("types:dt", "bin.base64");
-            ifdNode.SetAttribute("xmlns:types", "urn:schemas-microsoft-com:datatypes");
-            ifdNode.AppendChild(xmlquery.CreateTextNode(base64));
-
-            XmlElement infftNode = xmlquery.CreateElement("INFILEDATAFT");*/
-
             var parameters = new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "PARAMETERS", "" }, { "SOURCEIP", "" }, { "PROJID", nupProjID.Value.ToString() }, { "FIELDNAMES", fieldNames }, { "FIELDVALUES", fieldVals }, { "ORIGINALFILENAME", Path.GetFileName(txtFilePath.Text) }, { "SAVEDFILE", "" }, { "ORIGINALFILENAMEFT", "" }, { "SAVEDFILEFT", "" }, { "ADDTOFOLDER", "" }, { "INFILEDATA", base64 }, { "INFILEDATAFT", "" } };
             var query = APIHelper.BuildPVEQuery("AttachNewDocToProjectEx", parameters);
 
-            return query.ReplaceFirst("INFILEDATA", "INFILEDATA types:dt=\"bin.base64\" xmlns:types=\"urn:schemas-microsoft-com:datatypes\"");
+            return query.ReplaceFirst("INFILEDATA", @"INFILEDATA types:dt=""bin.base64"" xmlns:types=""urn:schemas-microsoft-com:datatypes""");
         }
 
         private void BtnClose_Click(object sender, EventArgs e)
@@ -193,7 +143,7 @@ namespace PVEAPIUtility
             response = BuildUploadQuery().SendXml(url);
             try
             {
-                docID = response.TryFindXmlNode("NEWDOCID", out success);
+                docID = response.TryGetXmlNode("NEWDOCID", out success);
                 if (success)
                     MessageBox.Show($"Upload Successful:\n\nProject ID: {nupProjID.Value.ToString()}\nDocument ID: {docID}", "Upload Success");
                 else

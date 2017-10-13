@@ -24,16 +24,16 @@ namespace PVEAPIUtility
         {
             string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "SOURCEIP", "" }, { "PROJID", projID }, });
             string response = query.SendXml(url);
-            string projattrs = response.TryFindXmlNode("PROJATTRS", out success);
+            string projattrs = response.TryGetXmlNode("PROJATTRS", out success);
             List<String> fields = new List<string>();
             if (success)
-                fields = projattrs.TryFindXmlNodes("NAME", out bool succ);
+                fields = projattrs.TryGetXmlNodes("NAME", out bool succ);
             return fields;
         }
 
         public static string BuildPVEQuery(string fName, Dictionary<string, string> parameters)
         {
-            string sXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>";
+            string sXML = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes"" ?>";
             sXML += "<PVDM_HTTPINTERFACE>";
             sXML += "<FUNCTION>";
             sXML += "<NAME>" + fName + "</NAME>";

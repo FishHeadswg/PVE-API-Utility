@@ -33,21 +33,6 @@ namespace PVEAPIUtility
         private int rainbowCount;
 
         /// <summary>
-        /// Keeps track of whether the create query window has been created already.
-        /// </summary>
-        private bool createOpen;
-
-        /// <summary>
-        /// Keeps track of whether the upload window has been created already.
-        /// </summary>
-        private bool uploadOpen;
-
-        /// <summary>
-        /// Keeps track of whether the custom query window has been created already.
-        /// </summary>
-        private bool customOpen;
-
-        /// <summary>
         /// Tracks if login info has been initialized.
         /// </summary>
         private bool initLoginInfo;
@@ -159,13 +144,14 @@ namespace PVEAPIUtility
             if (btnLogIn.Text != "Login")
             {
                 TryKillSession();
+                CloseForms();
                 btnLogIn.Text = "Login";
             }
             else
             {
-                TryLogin();
                 if (chkSave.Checked)
                     TrySaveLogin();
+                TryLogin();
             }
         }
 
@@ -193,8 +179,8 @@ namespace PVEAPIUtility
             try
             {
                 // *TO BE DONE*: Find the SESSIONID node
-                SessionID = response.TryFindXmlNode("SESSIONID", out bool success);
-                int ping = Convert.ToInt32(response.TryFindXmlNode("PINGTIME", out success));
+                SessionID = response.TryGetXmlNode("SESSIONID", out bool success);
+                int ping = Convert.ToInt32(response.TryGetXmlNode("PINGTIME", out success));
                 if (ping != 0)
                 {
                     PingInterval = ping;
@@ -232,6 +218,16 @@ namespace PVEAPIUtility
                 {
                     return;
                 }
+        }
+
+        private void CloseForms()
+        {
+            if (createQueryForm != null)
+                createQueryForm.Close();
+            if (uploadForm != null)
+                uploadForm.Close();
+            if (customForm != null)
+                customForm.Close();
         }
 
         /// <summary>
@@ -299,22 +295,13 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnUpload_Click(object sender, EventArgs e)
         {
-            try
+            if (uploadForm == null || uploadForm.IsDisposed)
             {
-                if (!uploadOpen)
                 {
                     uploadForm = new UploadForm(EntID, SessionID, Url);
-                    uploadOpen = true;
                 }
-
-                uploadForm.Show();
             }
-            catch
-            {
-                uploadForm = new UploadForm(EntID, SessionID, Url);
-                uploadForm.Show();
-                btnSendQuery.Enabled = true;
-            }
+            uploadForm.Show();
         }
 
         /// <summary>
@@ -324,23 +311,11 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnCustom_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (!customOpen)
-                {
-                    customForm = new CustomQueryForm(this, Url);
-                    customOpen = true;
-                }
-                else
-                    customForm.RootURL = Url;
-                customForm.Show();
-            }
-            catch
+            if (customForm == null || customForm.IsDisposed)
             {
                 customForm = new CustomQueryForm(this, Url);
-                customForm.Show();
-                btnSendQuery.Enabled = true;
             }
+            customForm.Show();
         }
 
         /// <summary>
@@ -522,23 +497,13 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnCreateQuery_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (!createOpen)
-                {
-                    createQueryForm = new CreateQueryForm(EntID, SessionID, Url);
-                    createOpen = true;
-                }
-
-                createQueryForm.Show();
-                btnSendQuery.Enabled = true;
-            }
-            catch
+            if (createQueryForm == null || createQueryForm.IsDisposed)
             {
                 createQueryForm = new CreateQueryForm(EntID, SessionID, Url);
-                createQueryForm.Show();
                 btnSendQuery.Enabled = true;
             }
+
+            createQueryForm.Show();
         }
 
         /// <summary>

@@ -59,7 +59,7 @@ namespace PVEAPIUtility
             /// <param name="xmlString"></param>
             /// <param name="xmlNode"></param>
             /// <returns></returns>
-            public static string TryFindXmlNode(this string xmlString, string xmlNode, out bool success)
+            public static string TryGetXmlNode(this string xmlString, string xmlNode, out bool success)
             {
                 StringBuilder output = new StringBuilder();
                 try
@@ -79,23 +79,20 @@ namespace PVEAPIUtility
             }
 
             /// <summary>
-            /// Returns all values for a particular node (designed specifically for fields).
+            /// Returns all values for a particular node (designed specifically for doc fields).
             /// </summary>
             /// <param name="xmlString"></param>
             /// <param name="xmlNode"></param>
             /// <returns></returns>
-            public static List<string> TryFindXmlNodes(this string xmlString, string xmlNode, out bool success)
+            public static List<string> TryGetXmlNodes(this string xmlString, string xmlNode, out bool success)
             {
                 List<string> nodeValues = new List<string>();
                 try
                 {
                     using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
                     {
-                        reader.ReadToFollowing("DOCUMENT_FIELDS");
-                        int count = Convert.ToInt32(reader.GetAttribute("COUNT"));
-                        for (int i = 0; i < count; ++i)
+                        while (reader.ReadToFollowing(xmlNode))
                         {
-                            reader.ReadToFollowing(xmlNode);
                             nodeValues.Add(reader.ReadElementContentAsString());
                         }
                     }
