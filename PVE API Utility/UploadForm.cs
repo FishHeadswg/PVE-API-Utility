@@ -56,7 +56,7 @@ namespace PVEAPIUtility
         private void BuildIndexes()
         {
             fieldList.Clear();
-            fieldList = APIHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success);
+            fieldList = APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success);
             if (!success)
             {
                 MessageBox.Show("Invalid Project ID");

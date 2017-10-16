@@ -176,7 +176,7 @@ namespace PVEAPIUtility
                 throw new ArgumentNullException();
             }
 
-            string[] projectFields = APIHelper.BuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success).ToArray();
+            string[] projectFields = APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success).ToArray();
             if (!success)
             {
                 MessageBox.Show("Invalid Project ID.");

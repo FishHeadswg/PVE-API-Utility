@@ -22,6 +22,38 @@ namespace PVEAPIUtility
         public static class CustomExtensions
         {
             /// <summary>
+            /// Appends supplied text to RichTextBox with the specified color.
+            /// </summary>
+            /// <param name="box"></param>
+            /// <param name="text"></param>
+            /// <param name="color"></param>
+            public static void AppendText(this RichTextBox box, string text, Color color)
+            {
+                box.SelectionStart = box.TextLength;
+                box.SelectionLength = 0;
+                box.SelectionColor = color;
+                box.AppendText(text);
+                box.SelectionColor = box.ForeColor;
+            }
+
+            /// <summary>
+            /// Replaces only the first occurrence of the search text in the string.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="search"></param>
+            /// <param name="replace"></param>
+            /// <returns></returns>
+            public static string ReplaceFirst(this string text, string search, string replace)
+            {
+                int pos = text.IndexOf(search);
+                if (pos < 0)
+                {
+                    return text;
+                }
+                return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+            }
+
+            /// <summary>
             /// Send an XML query to the server.
             /// </summary>
             /// <param name="xmlString">XML-formatted query to send.</param>
@@ -61,82 +93,61 @@ namespace PVEAPIUtility
             /// <returns></returns>
             public static string TryGetXmlNode(this string xmlString, string xmlNode, out bool success)
             {
-                StringBuilder output = new StringBuilder();
+                success = false;
                 try
                 {
-                    StringReader xml = new StringReader(xmlString);
-                    XmlReader reader = XmlReader.Create(xml);
-                    reader.ReadToFollowing(xmlNode);
-                    output.AppendLine(reader.ReadElementContentAsString());
-                    success = true;
-                    return output.ToString().Trim();
+                    using (var xml = new StringReader(xmlString))
+                    {
+                        using (var reader = XmlReader.Create(xml))
+                        {
+                            if (reader.ReadToFollowing(xmlNode))
+                            {
+                                success = true;
+                                return reader.ReadElementContentAsString().Trim();
+                            }
+                            else
+                            {
+                                return xmlString;
+                            }
+                        }
+                    }
                 }
                 catch
                 {
-                    success = false;
                     return xmlString;
                 }
             }
 
             /// <summary>
-            /// Returns all values for a particular node (designed specifically for doc fields).
+            /// Returns all values for a particular node.
             /// </summary>
             /// <param name="xmlString"></param>
             /// <param name="xmlNode"></param>
             /// <returns></returns>
             public static List<string> TryGetXmlNodes(this string xmlString, string xmlNode, out bool success)
             {
+                success = false;
                 List<string> nodeValues = new List<string>();
                 try
                 {
-                    using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
+                    using (var xmlSR = new StringReader(xmlString))
                     {
-                        while (reader.ReadToFollowing(xmlNode))
+                        using (XmlReader reader = XmlReader.Create(xmlSR))
                         {
-                            nodeValues.Add(reader.ReadElementContentAsString());
+                            while (reader.ReadToFollowing(xmlNode))
+                            {
+                                success = true;
+                                nodeValues.Add(reader.ReadElementContentAsString());
+                            }
                         }
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    success = false;
                 }
 
-                success = true;
                 return nodeValues;
-            }
-
-            /// <summary>
-            /// Replaces only the first occurrence of the search text in the string.
-            /// </summary>
-            /// <param name="text"></param>
-            /// <param name="search"></param>
-            /// <param name="replace"></param>
-            /// <returns></returns>
-            public static string ReplaceFirst(this string text, string search, string replace)
-            {
-                int pos = text.IndexOf(search);
-                if (pos < 0)
-                {
-                    return text;
-                }
-                return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
-            }
-
-            /// <summary>
-            /// Appends supplied text to RichTextBox with the specified color.
-            /// </summary>
-            /// <param name="box"></param>
-            /// <param name="text"></param>
-            /// <param name="color"></param>
-            public static void AppendText(this RichTextBox box, string text, Color color)
-            {
-                box.SelectionStart = box.TextLength;
-                box.SelectionLength = 0;
-                box.SelectionColor = color;
-                box.AppendText(text);
-                box.SelectionColor = box.ForeColor;
             }
         }
     }
