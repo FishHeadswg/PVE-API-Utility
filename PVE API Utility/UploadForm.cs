@@ -129,18 +129,21 @@ namespace PVEAPIUtility
             }
         }
 
-        private void BtnSave_Click(object sender, EventArgs e)
+        private async void BtnUpload_Click(object sender, EventArgs e)
         {
+            btnUpload.Text = "Uploading...";
+            btnUpload.Refresh();
             string response;
             string docID;
             bool success = false;
             if (txtFilePath.Text == string.Empty)
             {
                 MessageBox.Show("No file specified.", "Upload Error");
+                btnUpload.Text = "Upload";
                 return;
             }
 
-            response = BuildUploadQuery().SendXml(url);
+            response = await BuildUploadQuery().SendXml(url);
             try
             {
                 docID = response.TryGetXmlNode("NEWDOCID", out success);
@@ -153,6 +156,10 @@ namespace PVEAPIUtility
             catch
             {
                 MessageBox.Show("Upload Failed.\n\nEnsure your index fields are valid, the system has proper access to the file, and your session is not expired.", "Upload Error");
+            }
+            finally
+            {
+                btnUpload.Text = "Upload";
             }
         }
 

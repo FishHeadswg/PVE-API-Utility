@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UploadForm));
-            this.btnSave = new System.Windows.Forms.Button();
+            this.btnUpload = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.nupProjID = new System.Windows.Forms.NumericUpDown();
             this.btnClose = new System.Windows.Forms.Button();
@@ -47,15 +47,15 @@
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btnSave
+            // btnUpload
             // 
-            this.btnSave.Location = new System.Drawing.Point(210, 398);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(80, 23);
-            this.btnSave.TabIndex = 12;
-            this.btnSave.Text = "Upload";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
+            this.btnUpload.Location = new System.Drawing.Point(210, 398);
+            this.btnUpload.Name = "btnUpload";
+            this.btnUpload.Size = new System.Drawing.Size(80, 23);
+            this.btnUpload.TabIndex = 12;
+            this.btnUpload.Text = "Upload";
+            this.btnUpload.UseVisualStyleBackColor = true;
+            this.btnUpload.Click += new System.EventHandler(this.BtnUpload_Click);
             // 
             // label1
             // 
@@ -179,7 +179,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnClose);
-            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnUpload);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "UploadForm";
@@ -201,7 +201,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnUpload;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown nupProjID;
         private System.Windows.Forms.Button btnClose;

@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -59,7 +60,7 @@ namespace PVEAPIUtility
             /// <param name="xmlString">XML-formatted query to send.</param>
             /// <param name="hostURL">URL to send the query to.</param>
             /// <returns></returns>
-            public static string SendXml(this string xmlString, string hostURL)
+            public async static Task<string> SendXml(this string xmlString, string hostURL)
             {
                 if (string.IsNullOrEmpty(hostURL))
                 {

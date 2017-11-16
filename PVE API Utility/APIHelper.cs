@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using PVEAPIUtility.CustomExtensions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PVEAPIUtility
 {
@@ -24,7 +25,7 @@ namespace PVEAPIUtility
         public static List<string> TryBuildFieldList(string entID, string sessID, string projID, string url, out bool success)
         {
             string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "SOURCEIP", "" }, { "PROJID", projID }, });
-            string response = query.SendXml(url);
+            string response = TryBuildFieldListQuery(query, url).Result;
             string projattrs = response.TryGetXmlNode("PROJATTRS", out success);
             var fields = new List<string>();
             if (success)
@@ -64,6 +65,11 @@ namespace PVEAPIUtility
                 return $"{url}httpinterface.aspx";
             else
                 return $"{url}/httpinterface.aspx";
+        }
+
+        private static async Task<string> TryBuildFieldListQuery(string query, string url)
+        {
+            return await query.SendXml(url);
         }
 
         private static string EncodeXMLString(string xmlString)

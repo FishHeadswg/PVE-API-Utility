@@ -16,9 +16,10 @@ using System.ServiceModel;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using PVEAPIUtility.CustomExtensions;
+using System.Threading.Tasks;
 
 // *TO BE DONE*: You will need to add this DLL reference to the project to link the utility with PVE's COM interface.
-//// using PVDMSystem;
+////using PVDMSystem;
 
 namespace PVEAPIUtility
 {
@@ -149,6 +150,8 @@ namespace PVEAPIUtility
             }
             else
             {
+                btnLogIn.Text = "Logging in...";
+                btnLogIn.Refresh();
                 if (chkSave.Checked)
                     TrySaveLogin();
                 TryLogin();
@@ -158,21 +161,26 @@ namespace PVEAPIUtility
         /// <summary>
         /// Tries to log in using the provided credentials.
         /// </summary>
-        private void TryLogin()
+        private async void TryLogin()
         {
             EntID = numEntID.Value.ToString();
             Username = txtUsername.Text;
             Password = txtPW.Text;
             Url = txtURL.Text;
             string response;
-
             try
             {
-                response = BuildLoginQuery().SendXml(Url);
+                response = await BuildLoginQuery().SendXml(Url);
             }
             catch
             {
+                response = string.Empty;
+            }
+
+            if (response == string.Empty)
+            {
                 MessageBox.Show("Your root URL is invalid.");
+                btnLogIn.Text = "Login";
                 return;
             }
 
@@ -191,24 +199,26 @@ namespace PVEAPIUtility
                 btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
                 numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
                 btnLogIn.Text = "Logout";
+                return;
             }
             catch
             {
                 MessageBox.Show("Please verify that your login credentials are correct.");
+                return;
             }
         }
 
         /// <summary>
         /// Tries to kill the session and updates controls.
         /// </summary>
-        private void TryKillSession()
+        private async void TryKillSession()
         {
             if (SessionID != null)
                 try
                 {
                     var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
                     var query = APIHelper.BuildPVEQuery("KillSession", parameters);
-                    query.SendXml(Url);
+                    await query.SendXml(Url);
                     btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = btnSendQuery.Enabled = numDocID.Enabled = numProjID.Enabled = false;
                     numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
                     txtSessionID.Clear();
@@ -289,7 +299,7 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// Open upload form
+        /// Open upload form.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -325,6 +335,8 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnSendQuery_Click(object sender, EventArgs e)
         {
+            btnSendQuery.Text = "Sending...";
+            btnSendQuery.Refresh();
             try
             {
                 BuildQuery();
@@ -352,11 +364,11 @@ namespace PVEAPIUtility
                 catch
                 {
                     MessageBox.Show("Query invalid. Check your query parameters:" + Environment.NewLine + ex.Message, "Query Error");
-                    ////throw;
                 }
 
                 docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
             }
+            btnSendQuery.Text = "Send Search Query";
         }
 
         /// <summary>
@@ -559,11 +571,11 @@ namespace PVEAPIUtility
             abtForm.Show(this);
         }
 
-        private void PingSession(object sender, EventArgs e)
+        private async void PingSession(object sender, EventArgs e)
         {
             var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
             var pingQuery = APIHelper.BuildPVEQuery("PingSession", parameters);
-            pingQuery.SendXml(Url);
+            await pingQuery.SendXml(Url);
         }
 
         /// <summary>
