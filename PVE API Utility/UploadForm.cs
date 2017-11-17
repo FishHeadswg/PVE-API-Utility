@@ -53,13 +53,13 @@ namespace PVEAPIUtility
             SendMessage(txtFilePath.Handle, EM_SETCUEBANNER, 1, "Browse to file...");
         }
 
-        private void BuildIndexes()
+        private async void BuildIndexes()
         {
             fieldList.Clear();
-            fieldList = APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success);
-            if (!success)
+            fieldList = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
+            if (fieldList.Count == 0)
             {
-                MessageBox.Show("Invalid Project ID");
+                MessageBox.Show("Invalid Project ID", "Upload Error");
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace PVEAPIUtility
             }
             catch (Exception e)
             {
-                MessageBox.Show("Unable to read file:\n" + e.Message);
+                MessageBox.Show("Unable to read file:\n" + e.Message, "I/O Error");
             }
 
             var parameters = new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "PARAMETERS", "" }, { "SOURCEIP", "" }, { "PROJID", nupProjID.Value.ToString() }, { "FIELDNAMES", fieldNames }, { "FIELDVALUES", fieldVals }, { "ORIGINALFILENAME", Path.GetFileName(txtFilePath.Text) }, { "SAVEDFILE", "" }, { "ORIGINALFILENAMEFT", "" }, { "SAVEDFILEFT", "" }, { "ADDTOFOLDER", "" }, { "INFILEDATA", base64 }, { "INFILEDATAFT", "" } };
@@ -122,11 +122,11 @@ namespace PVEAPIUtility
 
         private void BtnBrowseFile_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
-            {
-                txtFilePath.Text = fileDialog.FileName;
-            }
+            using (OpenFileDialog fileDialog = new OpenFileDialog())
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    txtFilePath.Text = fileDialog.FileName;
+                }
         }
 
         private async void BtnUpload_Click(object sender, EventArgs e)
@@ -135,7 +135,6 @@ namespace PVEAPIUtility
             btnUpload.Refresh();
             string response;
             string docID;
-            bool success = false;
             if (txtFilePath.Text == string.Empty)
             {
                 MessageBox.Show("No file specified.", "Upload Error");
@@ -146,8 +145,8 @@ namespace PVEAPIUtility
             response = await BuildUploadQuery().SendXml(url);
             try
             {
-                docID = response.TryGetXmlNode("NEWDOCID", out success);
-                if (success)
+                docID = response.TryGetXmlNode("NEWDOCID");
+                if (docID != string.Empty)
                     MessageBox.Show($"Upload Successful:\n\nProject ID: {nupProjID.Value.ToString()}\nDocument ID: {docID}", "Upload Success");
                 else
                     MessageBox.Show("Upload failed:\nCheck your query parameters and/or session ID.", "Upload Error");

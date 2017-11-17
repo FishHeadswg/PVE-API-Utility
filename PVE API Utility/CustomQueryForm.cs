@@ -34,7 +34,7 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// Sends the XML query and prints it as an XDoxument (with encoded characters replaced for readability).
+        /// Sends the XML query and prints it as an XDocument (with encoded characters replaced for readability).
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -48,7 +48,7 @@ namespace PVEAPIUtility
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, "Query Error");
                 btnSubmit.Text = "Submit Query";
                 return;
             }

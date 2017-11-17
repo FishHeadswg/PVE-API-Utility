@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PVEAPIUtility
@@ -52,10 +53,10 @@ namespace PVEAPIUtility
         /// <summary>
         /// Populates the query window with controls.
         /// </summary>
-        private void QueryFormInit()
+        private async void QueryFormInit()
         {
-            TrySetCBox(cmbFTR);
-            TrySetCBox(cmbField0);
+            await TrySetCBox(cmbFTR);
+            await TrySetCBox(cmbField0);
             condFields.Add(cmbField0);
             condOps.Add(new ComboBox());
             condOps[0] = cmbOp0;
@@ -114,12 +115,12 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void BtnAddCond_Click(object sender, EventArgs e)
+        private async void BtnAddCond_Click(object sender, EventArgs e)
         {
             labels.Add(new Label());
             condPanel.Controls.Add(CreateLabel("field", labels[(3 * (condCtr - 1))]));
             condFields.Add(new ComboBox());
-            TrySetCBox(condFields[condCtr]);
+            await TrySetCBox(condFields[condCtr]);
             condPanel.Controls.Add(condFields[condCtr]);
             labels.Add(new Label());
             condPanel.Controls.Add(CreateLabel("operator", labels[3 * (condCtr - 1) + 1]));
@@ -169,25 +170,26 @@ namespace PVEAPIUtility
         /// Set combobox properties to populate project fields.
         /// </summary>
         /// <param name="cBox"></param>
-        private bool TrySetCBox(ComboBox cBox)
+        private async Task<bool> TrySetCBox(ComboBox cBox)
         {
             if (cBox == null)
             {
                 throw new ArgumentNullException();
             }
 
-            string[] projectFields = APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url, out bool success).ToArray();
-            if (!success)
+            var projectFields = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
+            if (projectFields.Count == 0)
             {
                 MessageBox.Show("Invalid Project ID.");
                 return false;
             }
 
+            var projectFieldsArray = projectFields.ToArray();
             var autocomp = new AutoCompleteStringCollection();
             cBox.Items.Clear();
-            cBox.Items.AddRange(projectFields);
+            cBox.Items.AddRange(projectFieldsArray);
             cBox.SelectedIndex = 0;
-            autocomp.AddRange(projectFields);
+            autocomp.AddRange(projectFieldsArray);
             cBox.AutoCompleteCustomSource = autocomp;
             cBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             cBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -199,13 +201,13 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ProjChanged(object sender, EventArgs e)
+        private async void ProjChanged(object sender, EventArgs e)
         {
-            if (TrySetCBox(cmbFTR))
+            if (await TrySetCBox(cmbFTR))
             {
                 foreach (ComboBox cmbField in condFields)
                 {
-                    TrySetCBox(cmbField);
+                    await TrySetCBox(cmbField);
                 }
             }
         }

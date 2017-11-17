@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -67,22 +68,26 @@ namespace PVEAPIUtility
                     throw new ArgumentNullException("hostURL");
                 }
 
-                WebClient client = new WebClient()
+                using (var client = new HttpClient())
                 {
-                    Credentials = CredentialCache.DefaultNetworkCredentials
-                };
-                hostURL = APIHelper.SanitizeURL(hostURL);
-                try
-                {
-                    return client.UploadString(hostURL, xmlString);
-                }
-                catch (Exception e)
-                {
-                    if (e.Message != null && e.InnerException != null)
-                        throw new Exception("*****ERROR*****" + Environment.NewLine + e.Message + Environment.NewLine + e.InnerException.Message);
-                    else if (e.Message != null)
-                        throw new Exception("*****ERROR*****" + Environment.NewLine + e.Message);
-                    return null;
+                    hostURL = APIHelper.SanitizeURL(hostURL);
+                    try
+                    {
+                        using (var query = new StringContent(xmlString, Encoding.UTF8, "application/xml"))
+                        {
+                            var response = await client.PostAsync(hostURL, query);
+                            var r2 = await response.Content.ReadAsStringAsync();
+                            return r2;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.Message != null && e.InnerException != null)
+                            throw new Exception("*****ERROR*****" + Environment.NewLine + e.Message + Environment.NewLine + e.InnerException.Message);
+                        else if (e.Message != null)
+                            throw new Exception("*****ERROR*****" + Environment.NewLine + e.Message);
+                        return null;
+                    }
                 }
             }
 
@@ -91,10 +96,9 @@ namespace PVEAPIUtility
             /// </summary>
             /// <param name="xmlString"></param>
             /// <param name="xmlNode"></param>
-            /// <returns></returns>
-            public static string TryGetXmlNode(this string xmlString, string xmlNode, out bool success)
+            /// <returns>Empty string on failure.</returns>
+            public static string TryGetXmlNode(this string xmlString, string xmlNode)
             {
-                success = false;
                 try
                 {
                     using (var xml = new StringReader(xmlString))
@@ -103,19 +107,18 @@ namespace PVEAPIUtility
                         {
                             if (reader.ReadToFollowing(xmlNode))
                             {
-                                success = true;
                                 return reader.ReadElementContentAsString().Trim();
                             }
                             else
                             {
-                                return xmlString;
+                                return string.Empty;
                             }
                         }
                     }
                 }
                 catch
                 {
-                    return xmlString;
+                    return string.Empty;
                 }
             }
 

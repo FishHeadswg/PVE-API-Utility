@@ -140,7 +140,7 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void BtnLogIn_Click(object sender, EventArgs e)
+        private async void BtnLogIn_Click(object sender, EventArgs e)
         {
             if (btnLogIn.Text != "Login")
             {
@@ -154,14 +154,18 @@ namespace PVEAPIUtility
                 btnLogIn.Refresh();
                 if (chkSave.Checked)
                     TrySaveLogin();
-                TryLogin();
+                bool loggedin = await TryLogin();
+                if (loggedin)
+                    btnLogIn.Text = "Logout";
+                else
+                    btnLogIn.Text = "Login";
             }
         }
 
         /// <summary>
         /// Tries to log in using the provided credentials.
         /// </summary>
-        private async void TryLogin()
+        private async Task<bool> TryLogin()
         {
             EntID = numEntID.Value.ToString();
             Username = txtUsername.Text;
@@ -179,16 +183,15 @@ namespace PVEAPIUtility
 
             if (response == string.Empty)
             {
-                MessageBox.Show("Your root URL is invalid.");
-                btnLogIn.Text = "Login";
-                return;
+                MessageBox.Show("Your root URL is invalid.", "Login Error");
+                return false;
             }
 
             try
             {
                 // *TO BE DONE*: Find the SESSIONID node
-                SessionID = response.TryGetXmlNode("SESSIONID", out bool success);
-                int ping = Convert.ToInt32(response.TryGetXmlNode("PINGTIME", out success));
+                SessionID = response.TryGetXmlNode("SESSIONID");
+                int ping = Convert.ToInt32(response.TryGetXmlNode("PINGTIME"));
                 if (ping != 0)
                 {
                     PingInterval = ping;
@@ -198,13 +201,12 @@ namespace PVEAPIUtility
                 txtSessionID.Text = SessionID;
                 btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
                 numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
-                btnLogIn.Text = "Logout";
-                return;
+                return true;
             }
             catch
             {
-                MessageBox.Show("Please verify that your login credentials are correct.");
-                return;
+                MessageBox.Show("Please verify that your login credentials are correct.", "Login Error");
+                return false;
             }
         }
 
@@ -247,17 +249,17 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnSaveResults_Click(object sender, EventArgs e)
         {
-            var saveDiag = new SaveFileDialog()
+            using (var saveDiag = new SaveFileDialog()
             {
                 Filter = "XML|*.xml",
                 Title = "Save Results",
                 FileName = "Query_Results_{" + DateTime.Now.ToString("MMM-dd-yyyy--HH-mm-ss") + "}"
-            };
-            if (saveDiag.ShowDialog() == DialogResult.OK)
-            {
-                using (var sw = new StreamWriter(saveDiag.FileName))
-                    sw.Write(txtResponse.Text);
-            }
+            })
+                if (saveDiag.ShowDialog() == DialogResult.OK)
+                {
+                    using (var sw = new StreamWriter(saveDiag.FileName))
+                        sw.Write(txtResponse.Text);
+                }
         }
 
         /// <summary>
@@ -689,7 +691,7 @@ namespace PVEAPIUtility
                             }
                             catch
                             {
-                                MessageBox.Show("Unable to read PVEAPIUtility.ini!");
+                                MessageBox.Show("Unable to read PVEAPIUtility.ini!", "I/O Error");
                             }
                         }
                     }

@@ -22,13 +22,13 @@ namespace PVEAPIUtility
         /// <param name="url"></param>
         /// <param name="success"></param>
         /// <returns></returns>
-        public static List<string> TryBuildFieldList(string entID, string sessID, string projID, string url, out bool success)
+        public static async Task<List<string>> TryBuildFieldList(string entID, string sessID, string projID, string url)
         {
             string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "SOURCEIP", "" }, { "PROJID", projID }, });
-            string response = TryBuildFieldListQuery(query, url).Result;
-            string projattrs = response.TryGetXmlNode("PROJATTRS", out success);
+            string response = await TryBuildFieldListQuery(query, url);
+            string projattrs = response.TryGetXmlNode("PROJATTRS");
             var fields = new List<string>();
-            if (success)
+            if (projattrs != string.Empty)
                 fields = projattrs.TryGetXmlNodes("NAME", out bool succ);
             return fields;
         }
