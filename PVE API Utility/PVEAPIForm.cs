@@ -57,7 +57,7 @@ namespace PVEAPIUtility
         public PVEAPIForm()
         {
             InitializeComponent();
-            pingTimer.Tick += new EventHandler(PingSession);
+            pingTimer.Tick += new EventHandler(PingSessionAsync);
             Rainbow = new[] { Color.Black, Color.Green, Color.Blue, Color.Indigo };
         }
 
@@ -142,30 +142,32 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private async void BtnLogIn_Click(object sender, EventArgs e)
         {
+            btnLogIn.Enabled = false;
             if (btnLogIn.Text != "Login")
             {
-                TryKillSession();
+                btnLogIn.Text = "Logging out...";
+                await TryKillSessionAsync();
                 CloseForms();
                 btnLogIn.Text = "Login";
             }
             else
             {
                 btnLogIn.Text = "Logging in...";
-                btnLogIn.Refresh();
                 if (chkSave.Checked)
-                    TrySaveLogin();
-                bool loggedin = await TryLogin();
+                    await TrySaveLoginAsync();
+                bool loggedin = await TryLoginAsync();
                 if (loggedin)
                     btnLogIn.Text = "Logout";
                 else
                     btnLogIn.Text = "Login";
             }
+            btnLogIn.Enabled = true;
         }
 
         /// <summary>
         /// Tries to log in using the provided credentials.
         /// </summary>
-        private async Task<bool> TryLogin()
+        private async Task<bool> TryLoginAsync()
         {
             EntID = numEntID.Value.ToString();
             Username = txtUsername.Text;
@@ -213,7 +215,7 @@ namespace PVEAPIUtility
         /// <summary>
         /// Tries to kill the session and updates controls.
         /// </summary>
-        private async void TryKillSession()
+        private async Task TryKillSessionAsync()
         {
             if (SessionID != null)
                 try
@@ -335,14 +337,13 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void BtnSendQuery_Click(object sender, EventArgs e)
+        private async void BtnSendQuery_Click(object sender, EventArgs e)
         {
             btnSendQuery.Text = "Sending...";
-            btnSendQuery.Refresh();
             try
             {
                 BuildQuery();
-                docSearchVars.PVResponse = QueryExecution(Url, docSearchVars.PVSession, docSearchVars.PVQuery);
+                docSearchVars.PVResponse = await QueryExecutionAsync(Url, docSearchVars.PVSession, docSearchVars.PVQuery);
                 txtResponse.AppendText(
                     (createQueryForm.RCO ? docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() :
                     docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT.ToString()) + Environment.NewLine + Environment.NewLine,
@@ -462,9 +463,9 @@ namespace PVEAPIUtility
         /// <param name="session"></param>
         /// <param name="query"></param>
         /// <returns></returns>
-        private DocSearchSvc.PVQUERYRESPONSE QueryExecution(string conurl, DocSearchSvc.PVSESSION session, DocSearchSvc.PVQUERY query)
+        private async Task<DocSearchSvc.PVQUERYRESPONSE> QueryExecutionAsync(string conurl, DocSearchSvc.PVSESSION session, DocSearchSvc.PVQUERY query)
         {
-            var myProjQueryResponse = new DocSearchSvc.PVQUERYRESPONSE();
+            var myProjQueryResponse = new DocSearchSvc.SEARCHResponse();
 
             // Create Document Search Client object for opening and closing the DSS for query searches
             var mySearchClient = new DocSearchSvc.PVDOCUMENTSEARCHClient();
@@ -486,7 +487,7 @@ namespace PVEAPIUtility
             try
             {
                 mySearchClient.Open();
-                myProjQueryResponse = mySearchClient.SEARCH(session, query);
+                myProjQueryResponse = await mySearchClient.SEARCHAsync(session, query);
             }
             catch (Exception ex)
             {
@@ -501,7 +502,7 @@ namespace PVEAPIUtility
                 }
             }
 
-            return myProjQueryResponse;
+            return myProjQueryResponse.Body.SEARCHResult;
         }
 
         /// <summary>
@@ -539,9 +540,9 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnFormClosing(object sender, FormClosingEventArgs e)
+        private async void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            TryKillSession();
+            await TryKillSessionAsync();
         }
 
         /// <summary>
@@ -573,7 +574,7 @@ namespace PVEAPIUtility
             abtForm.Show(this);
         }
 
-        private async void PingSession(object sender, EventArgs e)
+        private async void PingSessionAsync(object sender, EventArgs e)
         {
             var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
             var pingQuery = APIHelper.BuildPVEQuery("PingSession", parameters);
@@ -618,7 +619,7 @@ namespace PVEAPIUtility
         /// <summary>
         /// Encrypt and store login info.
         /// </summary>
-        private void TrySaveLogin()
+        private async Task TrySaveLoginAsync()
         {
             var isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
@@ -629,7 +630,7 @@ namespace PVEAPIUtility
                     using (var writer = new StreamWriter(isoStream))
                     {
                         // Writes encrypted login info
-                        writer.Write(EncryptLoginInfo());
+                        await writer.WriteAsync(EncryptLoginInfo());
                     }
                 }
             }
@@ -639,7 +640,7 @@ namespace PVEAPIUtility
                 {
                     using (var writer = new StreamWriter(isoStream))
                     {
-                        writer.Write(EncryptLoginInfo());
+                        await writer.WriteAsync(EncryptLoginInfo());
                     }
                 }
             }
@@ -650,10 +651,10 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             chkSave.Checked = true;
-            TrySaveLogin();
+            await TrySaveLoginAsync();
         }
 
         /// <summary>
@@ -661,15 +662,15 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void PVEAPIForm_Load(object sender, EventArgs e)
+        private async void PVEAPIForm_Load(object sender, EventArgs e)
         {
-            TryLoadLogin();
+            await TryLoadLoginAsync();
         }
 
         /// <summary>
         /// Attempt to load saved login data if it exists.
         /// </summary>
-        private void TryLoadLogin()
+        private async Task TryLoadLoginAsync()
         {
             var isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
@@ -679,15 +680,15 @@ namespace PVEAPIUtility
                 {
                     using (var reader = new StreamReader(isoStream))
                     {
-                        var loginInfo = DecryptLoginInfo(reader.ReadToEnd());
+                        var loginInfo = DecryptLoginInfo(await reader.ReadToEndAsync());
                         using (var strReader = new StringReader(loginInfo))
                         {
                             try
                             {
-                                txtURL.Text = strReader.ReadLine();
-                                txtUsername.Text = strReader.ReadLine();
-                                txtPW.Text = strReader.ReadLine();
-                                numEntID.Value = Convert.ToDecimal(strReader.ReadLine());
+                                txtURL.Text = await strReader.ReadLineAsync();
+                                txtUsername.Text = await strReader.ReadLineAsync();
+                                txtPW.Text = await strReader.ReadLineAsync();
+                                numEntID.Value = Convert.ToDecimal(await strReader.ReadLineAsync());
                             }
                             catch
                             {
@@ -703,14 +704,14 @@ namespace PVEAPIUtility
             initLoginInfo = true;
         }
 
-        private void ChkSave_CheckedChanged(object sender, EventArgs e)
+        private async void ChkSave_CheckedChanged(object sender, EventArgs e)
         {
             if (initLoginInfo)
             {
                 switch (chkSave.Checked)
                 {
                     case true:
-                        TrySaveLogin();
+                        await TrySaveLoginAsync();
                         break;
 
                     case false:
@@ -744,6 +745,11 @@ namespace PVEAPIUtility
             {
                 MessageBox.Show("Utility is not installed or the installation is missing files.", "Error");
             }
+        }
+
+        private void ClearToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            txtResponse.Clear();
         }
 
         /// <summary>

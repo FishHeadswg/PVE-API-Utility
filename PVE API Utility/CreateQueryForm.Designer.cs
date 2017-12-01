@@ -288,7 +288,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 305);
-            this.ControlBox = false;
             this.Controls.Add(this.cmbFTR);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.cmbSearchType);
@@ -306,10 +305,13 @@
             this.Controls.Add(this.btnSave);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "CreateQueryForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create Search Query";
-            this.Shown += new System.EventHandler(this.Form2_Load);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.CreateQueryForm_FormClosed);
+            this.Shown += new System.EventHandler(this.QueryForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.nupProjID)).EndInit();
             this.condPanel.ResumeLayout(false);
             this.condPanel.PerformLayout();

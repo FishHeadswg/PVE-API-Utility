@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using PVEAPIUtility.CustomExtensions;
+using System.Threading.Tasks;
 
 namespace PVEAPIUtility
 {
@@ -43,9 +44,9 @@ namespace PVEAPIUtility
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)]string lParam);
 
-        private void UploadForm_Load(object sender, EventArgs e)
+        private async void UploadForm_Load(object sender, EventArgs e)
         {
-            BuildIndexes();
+            await BuildIndexesAsync();
         }
 
         private void UploadForm_Show(object sender, EventArgs e)
@@ -53,13 +54,15 @@ namespace PVEAPIUtility
             SendMessage(txtFilePath.Handle, EM_SETCUEBANNER, 1, "Browse to file...");
         }
 
-        private async void BuildIndexes()
+        private async Task BuildIndexesAsync()
         {
+            nupProjID.Enabled = false;
             fieldList.Clear();
             fieldList = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
             if (fieldList.Count == 0)
             {
                 MessageBox.Show("Invalid Project ID", "Upload Error");
+                nupProjID.Enabled = true;
                 return;
             }
 
@@ -71,6 +74,7 @@ namespace PVEAPIUtility
                 indexTable.Controls.Add(new TextBox() { Dock = DockStyle.Fill }, 1, i);
                 ++i;
             }
+            nupProjID.Enabled = true;
         }
 
         private string BuildUploadQuery()
@@ -132,7 +136,6 @@ namespace PVEAPIUtility
         private async void BtnUpload_Click(object sender, EventArgs e)
         {
             btnUpload.Text = "Uploading...";
-            btnUpload.Refresh();
             string response;
             string docID;
             if (txtFilePath.Text == string.Empty)
@@ -162,11 +165,11 @@ namespace PVEAPIUtility
             }
         }
 
-        private void NupProjID_ValueChanged(object sender, EventArgs e)
+        private async void NupProjID_ValueChanged(object sender, EventArgs e)
         {
             indexTable.Controls.Clear();
             indexTable.RowCount = 1;
-            BuildIndexes();
+            await BuildIndexesAsync();
         }
     }
 }

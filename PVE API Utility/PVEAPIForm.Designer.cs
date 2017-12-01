@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PVEAPIForm));
             this.btnLogIn = new System.Windows.Forms.Button();
             this.btnSendQuery = new System.Windows.Forms.Button();
@@ -41,6 +42,8 @@
             this.txtURL = new System.Windows.Forms.TextBox();
             this.numEntID = new System.Windows.Forms.NumericUpDown();
             this.txtResponse = new System.Windows.Forms.RichTextBox();
+            this.contextMenuStrip_Output = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnOpenDoc = new System.Windows.Forms.Button();
             this.btnSaveResults = new System.Windows.Forms.Button();
             this.numProjID = new System.Windows.Forms.NumericUpDown();
@@ -69,6 +72,7 @@
             this.servicesGuideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.numEntID)).BeginInit();
+            this.contextMenuStrip_Output.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numProjID)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDocID)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -82,7 +86,7 @@
             // 
             this.btnLogIn.Location = new System.Drawing.Point(9, 73);
             this.btnLogIn.Name = "btnLogIn";
-            this.btnLogIn.Size = new System.Drawing.Size(75, 23);
+            this.btnLogIn.Size = new System.Drawing.Size(80, 23);
             this.btnLogIn.TabIndex = 6;
             this.btnLogIn.Text = "Login";
             this.btnLogIn.UseVisualStyleBackColor = true;
@@ -193,6 +197,7 @@
             // txtResponse
             // 
             this.txtResponse.BackColor = System.Drawing.SystemColors.Window;
+            this.txtResponse.ContextMenuStrip = this.contextMenuStrip_Output;
             this.txtResponse.Location = new System.Drawing.Point(16, 225);
             this.txtResponse.Name = "txtResponse";
             this.txtResponse.ReadOnly = true;
@@ -200,6 +205,19 @@
             this.txtResponse.Size = new System.Drawing.Size(956, 287);
             this.txtResponse.TabIndex = 15;
             this.txtResponse.Text = "";
+            // 
+            // contextMenuStrip_Output
+            // 
+            this.contextMenuStrip_Output.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.clearToolStripMenuItem});
+            this.contextMenuStrip_Output.Name = "contextMenuStrip1";
+            this.contextMenuStrip_Output.Size = new System.Drawing.Size(102, 26);
+            // 
+            // clearToolStripMenuItem
+            // 
+            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
+            this.clearToolStripMenuItem.Text = "Clear";
             // 
             // btnOpenDoc
             // 
@@ -518,6 +536,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.Load += new System.EventHandler(this.PVEAPIForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numEntID)).EndInit();
+            this.contextMenuStrip_Output.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numProjID)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDocID)).EndInit();
             this.groupBox1.ResumeLayout(false);
@@ -533,6 +552,8 @@
             this.PerformLayout();
 
         }
+
+        
 
         #endregion
 
@@ -575,6 +596,8 @@
         private System.Windows.Forms.ToolStripMenuItem servicesGuideToolStripMenuItem;
         private System.Windows.Forms.RadioButton radioPVWA;
         private System.Windows.Forms.RadioButton radioBBV;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Output;
+        private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
     }
 }
 

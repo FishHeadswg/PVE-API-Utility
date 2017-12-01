@@ -25,7 +25,7 @@ namespace PVEAPIUtility
         public static async Task<List<string>> TryBuildFieldList(string entID, string sessID, string projID, string url)
         {
             string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "SOURCEIP", "" }, { "PROJID", projID }, });
-            string response = await TryBuildFieldListQuery(query, url);
+            string response = await query.SendXml(url);
             string projattrs = response.TryGetXmlNode("PROJATTRS");
             var fields = new List<string>();
             if (projattrs != string.Empty)
@@ -65,11 +65,6 @@ namespace PVEAPIUtility
                 return $"{url}httpinterface.aspx";
             else
                 return $"{url}/httpinterface.aspx";
-        }
-
-        private static async Task<string> TryBuildFieldListQuery(string query, string url)
-        {
-            return await query.SendXml(url);
         }
 
         private static string EncodeXMLString(string xmlString)

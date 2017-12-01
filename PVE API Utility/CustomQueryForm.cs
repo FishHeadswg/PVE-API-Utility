@@ -41,7 +41,6 @@ namespace PVEAPIUtility
         private async void BtnSubmit_Click(object sender, EventArgs e)
         {
             btnSubmit.Text = "Sending...";
-            btnSubmit.Refresh();
             try
             {
                 response = await txtXMLQuery.Text.SendXml(RootURL);
@@ -49,16 +48,17 @@ namespace PVEAPIUtility
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Query Error");
-                btnSubmit.Text = "Submit Query";
                 return;
             }
-
+            finally
+            {
+                btnSubmit.Text = "Submit Query";
+            }
             response = XDocument.Parse(response).ToString();
             response = response
                 .Replace("&gt;", ">")
                 .Replace("&lt;", "<");
             mainForm.txtResponse.AppendText(Environment.NewLine + "CUSTOM QUERY RESPONSE: " + Environment.NewLine + response + Environment.NewLine, mainForm.Rainbow[mainForm.NextColor()]);
-            btnSubmit.Text = "Submit Query";
             Hide();
             mainForm.txtResponse.Focus();
         }

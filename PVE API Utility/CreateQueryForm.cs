@@ -44,17 +44,23 @@ namespace PVEAPIUtility
         public string SortFieldName { get; set; }
         public bool RCO { get; set; }
 
-        private void Form2_Load(object sender, EventArgs e)
+        /// <summary>
+        /// On-load event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void QueryForm_Load(object sender, EventArgs e)
         {
-            QueryFormInit();
+            await QueryFormInitAsync();
             ToolTipFTR.SetToolTip(cmbFTR, "Comma separated list of indexes to return.");
         }
 
         /// <summary>
         /// Populates the query window with controls.
         /// </summary>
-        private async void QueryFormInit()
+        private async Task QueryFormInitAsync()
         {
+            nupProjID.Enabled = false;
             await TrySetCBox(cmbFTR);
             await TrySetCBox(cmbField0);
             condFields.Add(cmbField0);
@@ -65,6 +71,7 @@ namespace PVEAPIUtility
             condVals[0] = txtValue0;
             cmbSearchType.SelectedIndex = 0;
             ++condCtr;
+            nupProjID.Enabled = true;
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -203,6 +210,7 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private async void ProjChanged(object sender, EventArgs e)
         {
+            nupProjID.Enabled = false;
             if (await TrySetCBox(cmbFTR))
             {
                 foreach (ComboBox cmbField in condFields)
@@ -210,6 +218,7 @@ namespace PVEAPIUtility
                     await TrySetCBox(cmbField);
                 }
             }
+            nupProjID.Enabled = true;
         }
 
         private Label CreateLabel(string type, Label label)
@@ -239,12 +248,12 @@ namespace PVEAPIUtility
             }
         }
 
-        private void BtnReset_Click(object sender, EventArgs e)
+        private async void BtnReset_Click(object sender, EventArgs e)
         {
-            ResetControls();
+            await ResetControls();
         }
 
-        private void ResetControls()
+        private async Task ResetControls()
         {
             foreach (Control ctrl in Controls)
             {
@@ -300,7 +309,12 @@ namespace PVEAPIUtility
             condOps.Clear();
             condVals.Clear();
             condCtr = 0;
-            QueryFormInit();
+            await QueryFormInitAsync();
+        }
+
+        private void CreateQueryForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Hide();
         }
     }
 }
