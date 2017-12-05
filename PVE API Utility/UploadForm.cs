@@ -135,6 +135,7 @@ namespace PVEAPIUtility
 
         private async void BtnUpload_Click(object sender, EventArgs e)
         {
+            btnUpload.Enabled = false;
             btnUpload.Text = "Uploading...";
             string response;
             string docID;
@@ -142,6 +143,7 @@ namespace PVEAPIUtility
             {
                 MessageBox.Show("No file specified.", "Upload Error");
                 btnUpload.Text = "Upload";
+                btnUpload.Enabled = true;
                 return;
             }
 
@@ -162,6 +164,7 @@ namespace PVEAPIUtility
             finally
             {
                 btnUpload.Text = "Upload";
+                btnUpload.Enabled = true;
             }
         }
 

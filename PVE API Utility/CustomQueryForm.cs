@@ -40,6 +40,7 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private async void BtnSubmit_Click(object sender, EventArgs e)
         {
+            btnSubmit.Enabled = false;
             btnSubmit.Text = "Sending...";
             try
             {
@@ -52,15 +53,16 @@ namespace PVEAPIUtility
             }
             finally
             {
+                btnSubmit.Enabled = true;
                 btnSubmit.Text = "Submit Query";
             }
+            Hide();
+            mainForm.txtResponse.Focus();
             response = XDocument.Parse(response).ToString();
             response = response
                 .Replace("&gt;", ">")
                 .Replace("&lt;", "<");
             mainForm.txtResponse.AppendText(Environment.NewLine + "CUSTOM QUERY RESPONSE: " + Environment.NewLine + response + Environment.NewLine, mainForm.Rainbow[mainForm.NextColor()]);
-            Hide();
-            mainForm.txtResponse.Focus();
         }
 
         private void BtnXML_Click(object sender, EventArgs e)
