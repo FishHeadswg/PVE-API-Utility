@@ -6,21 +6,21 @@ using System;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using PVEAPIUtility.CustomExtensions;
-using System.Text;
+using static System.String;
 
 namespace PVEAPIUtility
 {
     public partial class CustomQueryForm : Form
     {
-        private PVEAPIForm mainForm;
-        private string response;
+        private readonly PVEAPIForm mainForm;
 
         public CustomQueryForm(PVEAPIForm form, string url)
         {
-            if (form == null || string.IsNullOrEmpty(url))
+            if (form == null || IsNullOrEmpty(url))
             {
                 throw new ArgumentNullException();
             }
+
             InitializeComponent();
             mainForm = form;
             RootURL = url;
@@ -28,10 +28,7 @@ namespace PVEAPIUtility
 
         public string RootURL { get; set; }
 
-        private void BtnClose_Click(object sender, EventArgs e)
-        {
-            Hide();
-        }
+        private void BtnClose_Click(object sender, EventArgs e) => Hide();
 
         /// <summary>
         /// Sends the XML query and prints it as an XDocument (with encoded characters replaced for readability).
@@ -42,6 +39,7 @@ namespace PVEAPIUtility
         {
             btnSubmit.Enabled = false;
             btnSubmit.Text = "Sending...";
+            string response;
             try
             {
                 response = await txtXMLQuery.Text.SendXml(RootURL);
@@ -56,13 +54,14 @@ namespace PVEAPIUtility
                 btnSubmit.Enabled = true;
                 btnSubmit.Text = "Submit Query";
             }
+
             Hide();
             mainForm.txtResponse.Focus();
             response = XDocument.Parse(response).ToString();
             response = response
                 .Replace("&gt;", ">")
                 .Replace("&lt;", "<");
-            mainForm.txtResponse.AppendText(Environment.NewLine + "CUSTOM QUERY RESPONSE: " + Environment.NewLine + response + Environment.NewLine, mainForm.Rainbow[mainForm.NextColor()]);
+            mainForm.txtResponse.AppendText($"{response}\n", mainForm.GetQueryColor());
         }
 
         private void BtnXML_Click(object sender, EventArgs e)
@@ -71,9 +70,9 @@ namespace PVEAPIUtility
             {
                 txtXMLQuery.Text = XDocument.Parse(txtXMLQuery.Text).ToString();
             }
-            catch
+            catch (Exception exc)
             {
-                return;
+                Console.WriteLine(exc.Message);
             }
         }
     }

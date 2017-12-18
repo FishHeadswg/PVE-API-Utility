@@ -7,12 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using static System.String;
 
 namespace PVEAPIUtility
 {
@@ -52,6 +52,7 @@ namespace PVEAPIUtility
                 {
                     return text;
                 }
+
                 return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
             }
 
@@ -61,9 +62,9 @@ namespace PVEAPIUtility
             /// <param name="xmlString">XML-formatted query to send.</param>
             /// <param name="hostURL">URL to send the query to.</param>
             /// <returns></returns>
-            public async static Task<string> SendXml(this string xmlString, string hostURL)
+            public static async Task<string> SendXml(this string xmlString, string hostURL)
             {
-                if (string.IsNullOrEmpty(hostURL))
+                if (IsNullOrEmpty(hostURL))
                 {
                     throw new ArgumentNullException("hostURL");
                 }
@@ -76,16 +77,16 @@ namespace PVEAPIUtility
                         using (var query = new StringContent(xmlString, Encoding.UTF8, "application/xml"))
                         {
                             var response = await client.PostAsync(hostURL, query);
-                            var r2 = await response.Content.ReadAsStringAsync();
-                            return r2;
+                            var result = await response.Content.ReadAsStringAsync();
+                            return result;
                         }
                     }
                     catch (Exception e)
                     {
                         if (e.Message != null && e.InnerException != null)
-                            throw new Exception("*****ERROR*****" + Environment.NewLine + e.Message + Environment.NewLine + e.InnerException.Message);
+                            throw new Exception($"***ERROR***\n{e.Message}\n{e.InnerException.Message}");
                         else if (e.Message != null)
-                            throw new Exception("*****ERROR*****" + Environment.NewLine + e.Message);
+                            throw new Exception($"***ERROR***\n{e.Message}");
                         return null;
                     }
                 }
@@ -97,8 +98,9 @@ namespace PVEAPIUtility
             /// <param name="xmlString"></param>
             /// <param name="xmlNode"></param>
             /// <returns>Empty string on failure.</returns>
-            public static string TryGetXmlNode(this string xmlString, string xmlNode)
+            public static string TryGetXmlNode(this string xmlString, string xmlNode, out bool success)
             {
+                success = true;
                 try
                 {
                     using (var xml = new StringReader(xmlString))
@@ -111,14 +113,16 @@ namespace PVEAPIUtility
                             }
                             else
                             {
-                                return string.Empty;
+                                return Empty;
                             }
                         }
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    return string.Empty;
+                    Console.WriteLine(e.Message);
+                    success = false;
+                    return Empty;
                 }
             }
 

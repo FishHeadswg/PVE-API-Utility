@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.String;
 
 namespace PVEAPIUtility
 {
@@ -25,10 +26,11 @@ namespace PVEAPIUtility
 
         public CreateQueryForm(string entityID, string sessionID, string hosturl)
         {
-            if (string.IsNullOrEmpty(entityID) || string.IsNullOrEmpty(sessionID) || string.IsNullOrEmpty(hosturl))
+            if (IsNullOrEmpty(entityID) || IsNullOrEmpty(sessionID) || IsNullOrWhiteSpace(hosturl))
             {
                 throw new ArgumentNullException();
             }
+
             InitializeComponent();
             entID = entityID;
             sessID = sessionID;
@@ -58,6 +60,7 @@ namespace PVEAPIUtility
         /// <summary>
         /// Populates the query window with controls.
         /// </summary>
+        /// <returns></returns>
         private async Task QueryFormInitAsync()
         {
             nupProjID.Enabled = false;
@@ -105,7 +108,7 @@ namespace PVEAPIUtility
             SearchType = cmbSearchType.Text;
             SortFieldName = cmbSort.Text;
             RCO = chkRCO.Checked;
-            this.Visible = false;
+            Visible = false;
         }
 
         private void CmbSort_Click(object sender, EventArgs e)
@@ -130,11 +133,11 @@ namespace PVEAPIUtility
             await TrySetCBox(condFields[condCtr]);
             condPanel.Controls.Add(condFields[condCtr]);
             labels.Add(new Label());
-            condPanel.Controls.Add(CreateLabel("operator", labels[3 * (condCtr - 1) + 1]));
+            condPanel.Controls.Add(CreateLabel("operator", labels[(3 * (condCtr - 1)) + 1]));
             condOps.Add(new ComboBox());
             condPanel.Controls.Add(WomboCombo("operator", condOps[condCtr]));
             labels.Add(new Label());
-            condPanel.Controls.Add(CreateLabel("value", labels[3 * (condCtr - 1) + 2]));
+            condPanel.Controls.Add(CreateLabel("value", labels[(3 * (condCtr - 1)) + 2]));
             condVals.Add(new TextBox());
             condPanel.Controls.Add(condVals[condCtr]);
             ++condCtr;
@@ -148,10 +151,11 @@ namespace PVEAPIUtility
         /// <returns>Returns new Operator combobox.</returns>
         private ComboBox WomboCombo(string type, ComboBox cBox)
         {
-            if (string.IsNullOrEmpty(type) || cBox == null)
+            if (IsNullOrEmpty(type) || cBox == null)
             {
                 throw new ArgumentNullException();
             }
+
             cBox.DropDownStyle = ComboBoxStyle.DropDownList;
             cBox.Items.AddRange(new[]
             {
@@ -177,6 +181,7 @@ namespace PVEAPIUtility
         /// Set combobox properties to populate project fields.
         /// </summary>
         /// <param name="cBox"></param>
+        /// <returns></returns>
         private async Task<bool> TrySetCBox(ComboBox cBox)
         {
             if (cBox == null)
@@ -184,7 +189,8 @@ namespace PVEAPIUtility
                 throw new ArgumentNullException();
             }
 
-            var projectFields = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
+            var (Results, _) = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
+            var projectFields = Results;
             if (projectFields.Count == 0)
             {
                 MessageBox.Show("Invalid Project ID.");
@@ -218,6 +224,7 @@ namespace PVEAPIUtility
                     await TrySetCBox(cmbField);
                 }
             }
+
             nupProjID.Enabled = true;
         }
 
@@ -248,10 +255,7 @@ namespace PVEAPIUtility
             }
         }
 
-        private async void BtnReset_Click(object sender, EventArgs e)
-        {
-            await ResetControls();
-        }
+        private async void BtnReset_Click(object sender, EventArgs e) => await ResetControls();
 
         private async Task ResetControls()
         {
@@ -268,6 +272,7 @@ namespace PVEAPIUtility
                         {
                             cBox.SelectedIndex = 0;
                         }
+
                         break;
 
                     case CheckBox chkBox:
@@ -275,31 +280,28 @@ namespace PVEAPIUtility
                         break;
 
                     case FlowLayoutPanel flp:
-                        List<Control> listControls = flp.Controls.Cast<Control>().ToList();
+                        // Reverse since we're (likely) removing controls.
+                        var flowControls = flp.Controls.Cast<Control>().Reverse();
 
-                        foreach (Control flowControl in listControls)
+                        foreach (Control flowControl in flowControls)
                         {
-                            if (flowControl.Name == "")
+                            if (flowControl.Name == Empty)
                             {
                                 condPanel.Controls.Remove(flowControl);
                                 flowControl.Dispose();
                                 continue;
                             }
-
-                            if (flowControl is TextBox tBox2)
+                            else if (flowControl is TextBox tBox2)
                             {
                                 tBox2.Text = null;
                             }
-
-                            if (flowControl is ComboBox cBox2)
+                            else if (flowControl is ComboBox cBox2)
                             {
                                 if (cBox2.Items.Count > 0)
                                     cBox2.SelectedIndex = 0;
                             }
                         }
-                        break;
 
-                    default:
                         break;
                 }
             }
@@ -312,9 +314,6 @@ namespace PVEAPIUtility
             await QueryFormInitAsync();
         }
 
-        private void CreateQueryForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            Hide();
-        }
+        private void CreateQueryForm_FormClosed(object sender, FormClosedEventArgs e) => Hide();
     }
 }

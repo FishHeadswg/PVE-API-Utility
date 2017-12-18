@@ -12,18 +12,17 @@ namespace RijndaelManagedEncryption
 {
     public class RijndaelManagedEncryption
     {
-        /// <summary>
-        /// Change the Inputkey GUID when you use this code in your own program.
-        /// Keep this inputkey very safe and prevent someone from decoding it some way!!
+        /// <summary>.
+        /// Keep this InputKey safe and prevent someone from decoding it some way!!
         /// </summary>
-        internal const string Inputkey = "c069ccfc-036d-4b9d-80df-bb75955932fc";
+        internal const string InputKey = "c069ccfc-036d-4b9d-80df-bb75955932fc";
 
         /// <summary>
-        /// Encrypt the given text and give the byte array back as a BASE64 string
+        /// Encrypt the given text and give the byte array back as a base64 string.
         /// </summary>
-        /// <param name="text" />The text to encrypt
-        /// <param name="salt" />The password salt
-        /// <returns>The encrypted text</returns>
+        /// <param name="text">The text to encrypt.</param>
+        /// <param name="salt">The password salt.</param>
+        /// <returns>The encrypted text.</returns>
         public static string EncryptRijndael(string text, string salt)
         {
             if (string.IsNullOrEmpty(text))
@@ -43,10 +42,10 @@ namespace RijndaelManagedEncryption
         }
 
         /// <summary>
-        /// Checks if a string is base64 encoded
+        /// Checks if a string is base64 encoded.
         /// </summary>
-        /// <param name="base64String" />The base64 encoded string
-        /// <returns>Base64 encoded stringt</returns>
+        /// <param name="base64String">The base64 encoded string</param>
+        /// <returns>Base64 encoded string</returns>
         public static bool IsBase64String(string base64String)
         {
             base64String = base64String.Trim();
@@ -57,9 +56,9 @@ namespace RijndaelManagedEncryption
         /// <summary>
         /// Decrypts the given text
         /// </summary>
-        /// <param name="cipherText" />The encrypted BASE64 text
-        /// <param name="salt" />The pasword salt
-        /// <returns>The decrypted text</returns>
+        /// <param name="cipherText">The encrypted base64 text.</param>
+        /// <param name="salt">The password salt.</param>
+        /// <returns>The decrypted text.</returns>
         public static string DecryptRijndael(string cipherText, string salt)
         {
             if (string.IsNullOrEmpty(cipherText))
@@ -89,15 +88,15 @@ namespace RijndaelManagedEncryption
         }
 
         /// <summary>
-        /// Create a new RijndaelManaged class and initialize it
+        /// Create a new RijndaelManaged class and initialize it.
         /// </summary>
-        /// <param name="salt" />The password salt
+        /// <param name="salt">The password salt.</param>
         /// <returns></returns>
         private static RijndaelManaged NewRijndaelManaged(string salt)
         {
             if (salt == null) throw new ArgumentNullException("salt");
             var saltBytes = Encoding.ASCII.GetBytes(salt);
-            var key = new Rfc2898DeriveBytes(Inputkey, saltBytes);
+            var key = new Rfc2898DeriveBytes(InputKey, saltBytes);
 
             var aesAlg = new RijndaelManaged();
             aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);

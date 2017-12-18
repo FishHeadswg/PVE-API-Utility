@@ -71,6 +71,11 @@
             this.aPIGuideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.servicesGuideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.ssLbl = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ssbar = new System.Windows.Forms.ToolStripProgressBar();
+            this.txtLineNum = new System.Windows.Forms.RichTextBox();
+            this.panelResults = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.numEntID)).BeginInit();
             this.contextMenuStrip_Output.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numProjID)).BeginInit();
@@ -80,6 +85,8 @@
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.statusStrip.SuspendLayout();
+            this.panelResults.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLogIn
@@ -196,15 +203,21 @@
             // 
             // txtResponse
             // 
-            this.txtResponse.BackColor = System.Drawing.SystemColors.Window;
+            this.txtResponse.BackColor = System.Drawing.SystemColors.Control;
+            this.txtResponse.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtResponse.ContextMenuStrip = this.contextMenuStrip_Output;
-            this.txtResponse.Location = new System.Drawing.Point(16, 225);
+            this.txtResponse.Dock = System.Windows.Forms.DockStyle.Right;
+            this.txtResponse.Location = new System.Drawing.Point(41, 0);
             this.txtResponse.Name = "txtResponse";
             this.txtResponse.ReadOnly = true;
             this.txtResponse.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtResponse.Size = new System.Drawing.Size(956, 287);
-            this.txtResponse.TabIndex = 15;
+            this.txtResponse.Size = new System.Drawing.Size(911, 283);
+            this.txtResponse.TabIndex = 55;
             this.txtResponse.Text = "";
+            this.txtResponse.SelectionChanged += new System.EventHandler(this.TxtResponse_SelectionChanged);
+            this.txtResponse.VScroll += new System.EventHandler(this.TxtResponse_VScroll);
+            this.txtResponse.FontChanged += new System.EventHandler(this.TxtResponse_FontChanged);
+            this.txtResponse.VisibleChanged += new System.EventHandler(this.TxtResponse_TextChanged);
             // 
             // contextMenuStrip_Output
             // 
@@ -509,13 +522,64 @@
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ssLbl,
+            this.ssbar});
+            this.statusStrip.Location = new System.Drawing.Point(0, 515);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(984, 22);
+            this.statusStrip.TabIndex = 32;
+            // 
+            // ssLbl
+            // 
+            this.ssLbl.Name = "ssLbl";
+            this.ssLbl.Size = new System.Drawing.Size(71, 17);
+            this.ssLbl.Text = "Logged out.";
+            // 
+            // ssbar
+            // 
+            this.ssbar.Maximum = 3;
+            this.ssbar.Name = "ssbar";
+            this.ssbar.Size = new System.Drawing.Size(100, 16);
+            this.ssbar.Step = 1;
+            this.ssbar.Visible = false;
+            // 
+            // txtLineNum
+            // 
+            this.txtLineNum.BackColor = System.Drawing.SystemColors.Control;
+            this.txtLineNum.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtLineNum.Cursor = System.Windows.Forms.Cursors.PanNE;
+            this.txtLineNum.Dock = System.Windows.Forms.DockStyle.Left;
+            this.txtLineNum.Location = new System.Drawing.Point(0, 0);
+            this.txtLineNum.Name = "txtLineNum";
+            this.txtLineNum.ReadOnly = true;
+            this.txtLineNum.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.txtLineNum.Size = new System.Drawing.Size(35, 283);
+            this.txtLineNum.TabIndex = 33;
+            this.txtLineNum.Text = "";
+            this.txtLineNum.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LineNumberTextBox_MouseDown);
+            // 
+            // panelResults
+            // 
+            this.panelResults.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panelResults.Controls.Add(this.txtLineNum);
+            this.panelResults.Controls.Add(this.txtResponse);
+            this.panelResults.Location = new System.Drawing.Point(16, 225);
+            this.panelResults.Name = "panelResults";
+            this.panelResults.Size = new System.Drawing.Size(956, 287);
+            this.panelResults.TabIndex = 56;
+            // 
             // PVEAPIForm
             // 
             this.AcceptButton = this.btnLogIn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(984, 524);
+            this.ClientSize = new System.Drawing.Size(984, 537);
+            this.Controls.Add(this.panelResults);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -523,7 +587,6 @@
             this.Controls.Add(this.btnCustom);
             this.Controls.Add(this.btnUpload);
             this.Controls.Add(this.btnSaveResults);
-            this.Controls.Add(this.txtResponse);
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -535,6 +598,7 @@
             this.Text = "PaperVision Enterprise / ImageSilo API Utility";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.Load += new System.EventHandler(this.PVEAPIForm_Load);
+            this.Resize += new System.EventHandler(this.PVEAPIForm__Resize);
             ((System.ComponentModel.ISupportInitialize)(this.numEntID)).EndInit();
             this.contextMenuStrip_Output.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numProjID)).EndInit();
@@ -548,6 +612,9 @@
             this.groupBox4.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
+            this.panelResults.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -598,6 +665,11 @@
         private System.Windows.Forms.RadioButton radioBBV;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Output;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel ssLbl;
+        private System.Windows.Forms.ToolStripProgressBar ssbar;
+        private System.Windows.Forms.RichTextBox txtLineNum;
+        private System.Windows.Forms.Panel panelResults;
     }
 }
 

@@ -3,14 +3,14 @@
  * API helper methods.
  */
 
-using System;
 using System.Collections.Generic;
-using PVEAPIUtility.CustomExtensions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace PVEAPIUtility
 {
+    using CustomExtensions;
+
     public static class APIHelper
     {
         /// <summary>
@@ -20,17 +20,22 @@ namespace PVEAPIUtility
         /// <param name="sessID"></param>
         /// <param name="projID"></param>
         /// <param name="url"></param>
-        /// <param name="success"></param>
-        /// <returns></returns>
-        public static async Task<List<string>> TryBuildFieldList(string entID, string sessID, string projID, string url)
+        /// <returns>Tuple for fields and success.</returns>
+        public static async Task<(List<string> Results, bool Success)> TryBuildFieldList(string entID, string sessID, string projID, string url)
         {
-            string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string> { { "ENTITYID", entID }, { "SESSIONID", sessID }, { "SOURCEIP", "" }, { "PROJID", projID }, });
+            string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string>
+            {
+                ["ENTITYID"] = entID,
+                ["SESSIONID"] = sessID,
+                ["SOURCEIP"] = string.Empty,
+                ["PROJID"] = projID
+            });
             string response = await query.SendXml(url);
-            string projattrs = response.TryGetXmlNode("PROJATTRS");
+            string projattrs = response.TryGetXmlNode("PROJATTRS", out bool _);
             var fields = new List<string>();
             if (projattrs != string.Empty)
                 fields = projattrs.TryGetXmlNodes("NAME", out bool succ);
-            return fields;
+            return (fields, true);
         }
 
         /// <summary>
@@ -42,10 +47,10 @@ namespace PVEAPIUtility
         public static string BuildPVEQuery(string fName, Dictionary<string, string> parameters)
         {
             var sXML = new StringBuilder(@"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes"" ?>");
-            sXML.Append("<PVDM_HTTPINTERFACE><FUNCTION><NAME>" + fName + "</NAME><PARAMETERS>");
+            sXML.Append($"<PVDM_HTTPINTERFACE><FUNCTION><NAME>{fName}</NAME><PARAMETERS>");
             foreach (var kvp in parameters)
             {
-                sXML.Append("<" + kvp.Key + ">" + EncodeXMLString(kvp.Value) + "</" + kvp.Key + ">");
+                sXML.Append($"<{kvp.Key}>{EncodeXMLString(kvp.Value)}</{kvp.Key}>");
             }
 
             sXML.Append("</PARAMETERS></FUNCTION></PVDM_HTTPINTERFACE>");

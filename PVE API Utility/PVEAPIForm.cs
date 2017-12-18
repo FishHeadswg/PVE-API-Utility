@@ -5,6 +5,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -13,30 +14,32 @@ using System.IO.IsolatedStorage;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.ServiceModel;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using PVEAPIUtility.CustomExtensions;
-using System.Threading.Tasks;
+using static System.String;
 
 // *TO BE DONE*: You will need to add this DLL reference to the project to link the utility with PVE's COM interface.
 ////using PVDMSystem;
 
 namespace PVEAPIUtility
 {
+    using CustomExtensions;
+
     /// <summary>
     /// Main form for the API utility.
     /// </summary>
     public partial class PVEAPIForm : Form
     {
         /// <summary>
-        /// Cycles through colors for returned queries to help separate them.
+        /// Gets colors used for returned queries.
         /// </summary>
-        private int rainbowCount;
+        private readonly Color[] rainbow = new[] { Color.Black, Color.Green, Color.Blue, Color.Indigo };
 
         /// <summary>
-        /// Tracks if login info has been initialized.
+        /// Query color iterator.
         /// </summary>
-        private bool initLoginInfo;
+        private IEnumerator rainbowIter;
 
         /// <summary>
         /// Client ping timer (keeps session alive).
@@ -51,14 +54,14 @@ namespace PVEAPIUtility
         //// Child forms.
 
         private CreateQueryForm createQueryForm;
-        private UploadForm uploadForm;
-        private CustomQueryForm customForm;
+        private Lazy<UploadForm> uploadForm;
+        private Lazy<CustomQueryForm> customForm;
 
         public PVEAPIForm()
         {
             InitializeComponent();
             pingTimer.Tick += new EventHandler(PingSessionAsync);
-            Rainbow = new[] { Color.Black, Color.Green, Color.Blue, Color.Indigo };
+            rainbowIter = rainbow.GetEnumerator();
         }
 
         /// <summary>
@@ -71,11 +74,6 @@ namespace PVEAPIUtility
             Export = 2,
             Print = 3
         }
-
-        /// <summary>
-        /// Gets colors used for returned queries.
-        /// </summary>
-        public Color[] Rainbow { get; }
 
         /// <summary>
         /// Gets entity ID.
@@ -105,34 +103,88 @@ namespace PVEAPIUtility
         /// <summary>
         /// Sets the ping interval (75% of client ping).
         /// </summary>
-        private int PingInterval
-        {
-            set
-            {
-                pingTimer.Interval = (int)(value * 0.75f * 1000);
-            }
-        }
+        private void SetPingInterval(int value) => pingTimer.Interval = (int)(value * 0.75f * 1000);
 
         /// <summary>
         /// Returns the next query color.
         /// </summary>
         /// <returns></returns>
-        public int NextColor()
+        public Color GetQueryColor()
         {
-            if (rainbowCount == Rainbow.Length)
-                rainbowCount = 0;
-            return rainbowCount++;
+            if (!rainbowIter.MoveNext())
+            {
+                rainbowIter.Reset();
+                rainbowIter.MoveNext();
+            }
+            return (Color)rainbowIter.Current;
         }
 
         /// <summary>
-        /// Builds the LoginUserEx3 query
+        /// Populates line numbers.
         /// </summary>
-        /// <returns></returns>
-        private string BuildLoginQuery()
+        public void AddLineNumbers()
         {
-            // *TO BE DONE*: Pass the entity ID, user name, and password to the LoginUserEx3 call from the form controls
-            var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "USERNAME", Username }, { "PASSWORD", Password }, { "SOURCEIP", "" }, { "CORELICTYPE", "" }, { "CLIENTPINGABLE", "TRUE" }, { "REMOTEAUTH", "FALSE" } };
-            return APIHelper.BuildPVEQuery("LoginUserEx3", parameters);
+            Point pt = new Point(1, 1);
+            int firstLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
+            pt.X = txtResponse.ClientRectangle.Width;
+            pt.Y = txtResponse.ClientRectangle.Height;
+            int lastLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
+            txtLineNum.SelectionAlignment = HorizontalAlignment.Right;
+            txtLineNum.Clear();
+            for (int i = firstLine; i <= lastLine + 1; i++)
+            {
+                txtLineNum.Text += $"{(i + 1)}\n";
+            }
+        }
+
+        /// <summary>
+        /// Loads utility settings.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void PVEAPIForm_Load(object sender, EventArgs e)
+        {
+            await TryLoadLoginAsync();
+            txtLineNum.Font = txtResponse.Font;
+        }
+
+        private void PVEAPIForm__Resize(object sender, EventArgs e) => AddLineNumbers();
+
+        private void TxtResponse_SelectionChanged(object sender, EventArgs e)
+        {
+            Point pt = txtResponse.GetPositionFromCharIndex(txtResponse.SelectionStart);
+            if (pt.X == 1)
+            {
+                AddLineNumbers();
+            }
+        }
+
+        private void TxtResponse_VScroll(object sender, EventArgs e)
+        {
+            txtLineNum.Clear();
+            AddLineNumbers();
+            txtLineNum.Invalidate();
+        }
+
+        private void TxtResponse_TextChanged(object sender, EventArgs e)
+        {
+            if (txtResponse.Text != Empty)
+            {
+                AddLineNumbers();
+            }
+        }
+
+        private void TxtResponse_FontChanged(object sender, EventArgs e)
+        {
+            txtLineNum.Font = txtResponse.Font;
+            txtResponse.Select();
+            AddLineNumbers();
+        }
+
+        private void LineNumberTextBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            txtResponse.Select();
+            txtLineNum.DeselectAll();
         }
 
         /// <summary>
@@ -143,105 +195,52 @@ namespace PVEAPIUtility
         private async void BtnLogIn_Click(object sender, EventArgs e)
         {
             btnLogIn.Enabled = false;
+            ssbar.Visible = true;
             if (btnLogIn.Text != "Login")
             {
-                btnLogIn.Text = "Logging out...";
+                btnLogIn.Text = ssLbl.Text = "Logging out...";
+                ssbar.PerformStep();
                 await TryKillSessionAsync();
+                ssbar.PerformStep();
                 CloseForms();
+                ssLbl.Text = "Logged out.";
                 btnLogIn.Text = "Login";
             }
             else
             {
-                btnLogIn.Text = "Logging in...";
+                btnLogIn.Text = ssLbl.Text = "Logging in...";
+                ssbar.PerformStep();
                 if (chkSave.Checked)
                     await TrySaveLoginAsync();
                 bool loggedin = await TryLoginAsync();
+                ssbar.PerformStep();
                 if (loggedin)
+                {
                     btnLogIn.Text = "Logout";
+                    ssLbl.Text = "Logged in.";
+                }
                 else
+                {
                     btnLogIn.Text = "Login";
+                    ssLbl.Text = "Logged out.";
+                }
+
+                ssbar.PerformStep();
             }
+
             btnLogIn.Enabled = true;
-        }
-
-        /// <summary>
-        /// Tries to log in using the provided credentials.
-        /// </summary>
-        private async Task<bool> TryLoginAsync()
-        {
-            EntID = numEntID.Value.ToString();
-            Username = txtUsername.Text;
-            Password = txtPW.Text;
-            Url = txtURL.Text;
-            string response;
-            try
-            {
-                response = await BuildLoginQuery().SendXml(Url);
-            }
-            catch
-            {
-                response = string.Empty;
-            }
-
-            if (response == string.Empty)
-            {
-                MessageBox.Show("Your root URL is invalid.", "Login Error");
-                return false;
-            }
-
-            try
-            {
-                // *TO BE DONE*: Find the SESSIONID node
-                SessionID = response.TryGetXmlNode("SESSIONID");
-                int ping = Convert.ToInt32(response.TryGetXmlNode("PINGTIME"));
-                if (ping != 0)
-                {
-                    PingInterval = ping;
-                    pingTimer.Start();
-                }
-
-                txtSessionID.Text = SessionID;
-                btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
-                numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
-                return true;
-            }
-            catch
-            {
-                MessageBox.Show("Please verify that your login credentials are correct.", "Login Error");
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Tries to kill the session and updates controls.
-        /// </summary>
-        private async Task TryKillSessionAsync()
-        {
-            if (SessionID != null)
-                try
-                {
-                    var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
-                    var query = APIHelper.BuildPVEQuery("KillSession", parameters);
-                    await query.SendXml(Url);
-                    btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = btnSendQuery.Enabled = numDocID.Enabled = numProjID.Enabled = false;
-                    numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
-                    txtSessionID.Clear();
-                    pingTimer.Stop();
-                }
-                catch
-                {
-                    return;
-                }
+            ssbar.Visible = false;
+            ssbar.Value = 0;
         }
 
         private void CloseForms()
         {
             if (createQueryForm != null)
                 createQueryForm.Close();
-            if (uploadForm != null)
-                uploadForm.Close();
-            if (customForm != null)
-                customForm.Close();
+            if (uploadForm?.IsValueCreated ?? false)
+                uploadForm.Value.Close();
+            if (customForm?.IsValueCreated ?? false)
+                customForm.Value.Close();
         }
 
         /// <summary>
@@ -255,7 +254,7 @@ namespace PVEAPIUtility
             {
                 Filter = "XML|*.xml",
                 Title = "Save Results",
-                FileName = "Query_Results_{" + DateTime.Now.ToString("MMM-dd-yyyy--HH-mm-ss") + "}"
+                FileName = $"Query Results({DateTimeOffset.Now.ToString("MMM-dd-yyyy_HH-mm")})"
             })
                 if (saveDiag.ShowDialog() == DialogResult.OK)
                 {
@@ -309,13 +308,14 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnUpload_Click(object sender, EventArgs e)
         {
-            if (uploadForm == null || uploadForm.IsDisposed)
+            if (uploadForm?.Value?.IsDisposed ?? true)
             {
                 {
-                    uploadForm = new UploadForm(EntID, SessionID, Url);
+                    uploadForm = new Lazy<UploadForm>(() => new UploadForm(EntID, SessionID, Url));
                 }
             }
-            uploadForm.Show();
+
+            uploadForm.Value.Show();
         }
 
         /// <summary>
@@ -325,11 +325,12 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private void BtnCustom_Click(object sender, EventArgs e)
         {
-            if (customForm == null || customForm.IsDisposed)
+            if (customForm?.Value?.IsDisposed ?? true)
             {
-                customForm = new CustomQueryForm(this, Url);
+                customForm = new Lazy<CustomQueryForm>(() => new CustomQueryForm(this, Url));
             }
-            customForm.Show();
+
+            customForm.Value.Show();
         }
 
         /// <summary>
@@ -339,39 +340,242 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private async void BtnSendQuery_Click(object sender, EventArgs e)
         {
-            btnSendQuery.Text = "Sending...";
+            btnSendQuery.Enabled = false;
+            btnSendQuery.Text = ssLbl.Text = "Sending...";
+            ssbar.Visible = true;
             try
             {
                 BuildQuery();
+                ssbar.PerformStep();
                 docSearchVars.PVResponse = await QueryExecutionAsync(Url, docSearchVars.PVSession, docSearchVars.PVQuery);
+                ssbar.PerformStep();
+                var results = docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT;
                 txtResponse.AppendText(
-                    (createQueryForm.RCO ? docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() :
-                    docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].SEARCHRESULT.ToString()) + Environment.NewLine + Environment.NewLine,
-                    Rainbow[NextColor()]);
+                    $"{(createQueryForm.RCO ? $"<COUNT>{docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString()}</COUNT>" : (results?.ToString() ?? "<DOCUMENTRESULTS>NO RESULTS</DOCUMENTRESULTS>"))}\n\n", GetQueryColor());
                 txtResponse.Focus();
-                docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
+                ssbar.PerformStep();
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
+                MessageBox.Show($"Query invalid. Check your query parameters:\n{ex.Message}", "Query Error");
+            }
+            finally
+            {
+                docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
+                btnSendQuery.Text = "Send Search Query";
+                ssLbl.Text = "Logged in.";
+                ssbar.Visible = false;
+                ssbar.Value = 0;
+                btnSendQuery.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Open the Create Query form
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnCreateQuery_Click(object sender, EventArgs e)
+        {
+            if (createQueryForm?.IsDisposed ?? true)
+            {
+                createQueryForm = new CreateQueryForm(EntID, SessionID, Url);
+                btnSendQuery.Enabled = true;
+            }
+
+            createQueryForm.Show();
+        }
+
+        /// <summary>
+        /// Kill any open sessions when closing the main form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void OnFormClosing(object sender, FormClosingEventArgs e) => await TryKillSessionAsync();
+
+        /// <summary>
+        /// Copies the session ID to clipboard.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnCopy_Click(object sender, EventArgs e) => Clipboard.SetText(txtSessionID.Text);
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Close();
+
+        /// <summary>
+        /// Show About window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutBox abtForm = new AboutBox();
+            abtForm.Location = new Point(
+                Location.X + ((Width - abtForm.Width) / 2),
+                Location.Y + ((Height - abtForm.Height) / 2));
+            abtForm.Show(this);
+        }
+
+        /// <summary>
+        /// Saves the login credentials in IsolatedStorage.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            chkSave.Checked = true;
+            await TrySaveLoginAsync();
+        }
+
+        private async void ChkSave_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkSave.Checked)
+                await TrySaveLoginAsync();
+            else
+                TryDeleteLogin();
+        }
+
+        private void APIGuideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVision_Enterprise_APIGuide.pdf");
+            }
+            catch (Exception ex) when (ex.Message.Contains("cannot find the file"))
+            {
+                MessageBox.Show("Utility is not installed or the installation is missing files.", "Error");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
+        }
+
+        private void ServicesGuideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVisionEnterpriseServices.pdf");
+            }
+            catch (Exception ex) when (ex.Message.Contains("cannot find the file"))
+            {
+                MessageBox.Show("Utility is not installed or the installation is missing files.", "Error");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
+        }
+
+        private void ClearToolStripMenuItem_Click(object sender, EventArgs e) => txtResponse.Clear();
+
+        /// <summary>
+        /// Builds the LoginUserEx3 query
+        /// </summary>
+        /// <returns></returns>
+        private string BuildLoginQuery()
+        {
+            // *TO BE DONE*: Pass the entity ID, user name, and password to the LoginUserEx3 call from the form controls
+            var parameters = new Dictionary<string, string>
+            {
+                ["ENTITYID"] = EntID,
+                ["USERNAME"] = Username,
+                ["PASSWORD"] = Password,
+                ["SOURCEIP"] = Empty,
+                ["CORELICTYPE"] = Empty,
+                ["CLIENTPINGABLE"] = "TRUE",
+                ["REMOTEAUTH"] = "FALSE"
+            };
+            return APIHelper.BuildPVEQuery("LoginUserEx3", parameters);
+        }
+
+        /// <summary>
+        /// Tries to log in using the provided credentials.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<bool> TryLoginAsync()
+        {
+            if (IsNullOrWhiteSpace(txtUsername.Text) || IsNullOrWhiteSpace(txtURL.Text))
+            {
+                MessageBox.Show("Please specify a Server URL and/or User Name.", "Login Error");
+                return false;
+            }
+
+            numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
+            EntID = numEntID.Value.ToString();
+            Username = txtUsername.Text;
+            Password = txtPW.Text;
+            Url = txtURL.Text;
+            string response;
+            try
+            {
+                response = await BuildLoginQuery().SendXml(Url);
+            }
+            catch
+            {
+                response = Empty;
+            }
+
+            if (response == Empty)
+            {
+                MessageBox.Show("Your root URL is invalid.", "Login Error");
+                numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
+                return false;
+            }
+
+            try
+            {
+                // *TO BE DONE*: Find the SESSIONID node
+                SessionID = response.TryGetXmlNode("SESSIONID", out bool successSession);
+                int ping = Convert.ToInt32(response.TryGetXmlNode("PINGTIME", out bool successPing));
+                if (ping != 0)
+                {
+                    SetPingInterval(ping);
+                    pingTimer.Start();
+                }
+
+                txtSessionID.Text = SessionID;
+                btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
+                numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
+                return true;
+            }
+            catch
+            {
+                MessageBox.Show("Please verify that your login credentials are correct.", "Login Error");
+                numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to kill the session and updates controls.
+        /// </summary>
+        /// <returns></returns>
+        private async Task<bool> TryKillSessionAsync()
+        {
+            if (SessionID != null)
                 try
                 {
-                    // Check if there were no query results simply because there were no matches
-                    if (docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT == 0)
+                    var parameters = new Dictionary<string, string>
                     {
-                        txtResponse.AppendText(
-                            docSearchVars.PVResponse.PROJECTQUERYRESPONSES[0].RESULTCOUNT.ToString() + Environment.NewLine + Environment.NewLine,
-                            Rainbow[NextColor()]);
-                        txtResponse.Focus();
-                    }
+                        ["ENTITYID"] = EntID,
+                        ["SESSIONID"] = SessionID,
+                        ["SOURCEIP"] = Empty
+                    };
+                    var query = APIHelper.BuildPVEQuery("KillSession", parameters);
+                    await query.SendXml(Url);
+                    btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = btnSendQuery.Enabled = numDocID.Enabled = numProjID.Enabled = false;
+                    numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
+                    txtSessionID.Clear();
+                    pingTimer.Stop();
                 }
                 catch
                 {
-                    MessageBox.Show("Query invalid. Check your query parameters:" + Environment.NewLine + ex.Message, "Query Error");
+                    Console.WriteLine("Unable to kill session");
+                    return false;
                 }
-
-                docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
-            }
-            btnSendQuery.Text = "Send Search Query";
+            return true;
         }
 
         /// <summary>
@@ -506,77 +710,28 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// Open the Create Query form
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnCreateQuery_Click(object sender, EventArgs e)
-        {
-            if (createQueryForm == null || createQueryForm.IsDisposed)
-            {
-                createQueryForm = new CreateQueryForm(EntID, SessionID, Url);
-                btnSendQuery.Enabled = true;
-            }
-
-            createQueryForm.Show();
-        }
-
-        /// <summary>
         /// Parse query operations and return the corresponding PVOPERATOR
         /// </summary>
         /// <param name="op">Operation type.</param>
         /// <returns></returns>
         private DocSearchSvc.PVOPERATOR GetOp(string op)
         {
-            if (string.IsNullOrEmpty(op))
+            if (IsNullOrEmpty(op))
             {
                 throw new ArgumentNullException();
             }
+
             return (DocSearchSvc.PVOPERATOR)Enum.Parse(typeof(DocSearchSvc.PVOPERATOR), op);
-        }
-
-        /// <summary>
-        /// Kill any open sessions when closing the main form.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void OnFormClosing(object sender, FormClosingEventArgs e)
-        {
-            await TryKillSessionAsync();
-        }
-
-        /// <summary>
-        /// Copies the session ID to clipboard.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnCopy_Click(object sender, EventArgs e)
-        {
-            Clipboard.SetText(txtSessionID.Text);
-        }
-
-        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        /// <summary>
-        /// Show About window.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AboutBox abtForm = new AboutBox();
-            abtForm.Location = new Point(
-                this.Location.X + (this.Width - abtForm.Width) / 2,
-                this.Location.Y + (this.Height - abtForm.Height) / 2);
-            abtForm.Show(this);
         }
 
         private async void PingSessionAsync(object sender, EventArgs e)
         {
-            var parameters = new Dictionary<string, string> { { "ENTITYID", EntID }, { "SESSIONID", SessionID }, { "SOURCEIP", "" } };
+            var parameters = new Dictionary<string, string>
+            {
+                ["ENTITYID"] = EntID,
+                ["SESSIONID"] = SessionID,
+                ["SOURCEIP"] = Empty
+            };
             var pingQuery = APIHelper.BuildPVEQuery("PingSession", parameters);
             await pingQuery.SendXml(Url);
         }
@@ -619,137 +774,88 @@ namespace PVEAPIUtility
         /// <summary>
         /// Encrypt and store login info.
         /// </summary>
-        private async Task TrySaveLoginAsync()
+        /// <returns></returns>
+        private async Task<bool> TrySaveLoginAsync()
         {
             var isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
-            if (!isoStore.FileExists("PVEAPIUtility.ini"))
+            try
             {
-                using (var isoStream = new IsolatedStorageFileStream("PVEAPIUtility.ini", FileMode.CreateNew, isoStore))
+                if (!isoStore.FileExists("PVEAPIUtility.ini"))
                 {
-                    using (var writer = new StreamWriter(isoStream))
+                    using (var isoStream = new IsolatedStorageFileStream("PVEAPIUtility.ini", FileMode.CreateNew, isoStore))
                     {
-                        // Writes encrypted login info
-                        await writer.WriteAsync(EncryptLoginInfo());
+                        using (var writer = new StreamWriter(isoStream))
+                        {
+                            // Writes encrypted login info
+                            await writer.WriteAsync(EncryptLoginInfo());
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    using (var isoStream = new IsolatedStorageFileStream("PVEAPIUtility.ini", FileMode.Truncate, isoStore))
+                    {
+                        using (var writer = new StreamWriter(isoStream))
+                        {
+                            await writer.WriteAsync(EncryptLoginInfo());
+                            return true;
+                        }
                     }
                 }
             }
-            else
+            catch (Exception e)
             {
-                using (var isoStream = new IsolatedStorageFileStream("PVEAPIUtility.ini", FileMode.Truncate, isoStore))
-                {
-                    using (var writer = new StreamWriter(isoStream))
-                    {
-                        await writer.WriteAsync(EncryptLoginInfo());
-                    }
-                }
+                Console.WriteLine(e.Message);
+                return false;
             }
-        }
-
-        /// <summary>
-        /// Saves the login credentials in IsolatedStorage.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void SaveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            chkSave.Checked = true;
-            await TrySaveLoginAsync();
-        }
-
-        /// <summary>
-        /// Loads utility settings.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void PVEAPIForm_Load(object sender, EventArgs e)
-        {
-            await TryLoadLoginAsync();
         }
 
         /// <summary>
         /// Attempt to load saved login data if it exists.
         /// </summary>
-        private async Task TryLoadLoginAsync()
+        /// <returns></returns>
+        private async Task<bool> TryLoadLoginAsync()
         {
             var isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
-            if (isoStore.FileExists("PVEAPIUtility.ini"))
+            try
             {
-                using (var isoStream = new IsolatedStorageFileStream("PVEAPIUtility.ini", FileMode.Open, isoStore))
+                if (isoStore.FileExists("PVEAPIUtility.ini"))
                 {
-                    using (var reader = new StreamReader(isoStream))
+                    using (var isoStream = new IsolatedStorageFileStream("PVEAPIUtility.ini", FileMode.Open, isoStore))
                     {
-                        var loginInfo = DecryptLoginInfo(await reader.ReadToEndAsync());
-                        using (var strReader = new StringReader(loginInfo))
+                        using (var reader = new StreamReader(isoStream))
                         {
-                            try
+                            var loginInfo = DecryptLoginInfo(await reader.ReadToEndAsync());
+                            using (var strReader = new StringReader(loginInfo))
                             {
-                                txtURL.Text = await strReader.ReadLineAsync();
-                                txtUsername.Text = await strReader.ReadLineAsync();
-                                txtPW.Text = await strReader.ReadLineAsync();
-                                numEntID.Value = Convert.ToDecimal(await strReader.ReadLineAsync());
-                            }
-                            catch
-                            {
-                                MessageBox.Show("Unable to read PVEAPIUtility.ini!", "I/O Error");
+                                try
+                                {
+                                    txtURL.Text = await strReader.ReadLineAsync();
+                                    txtUsername.Text = await strReader.ReadLineAsync();
+                                    txtPW.Text = await strReader.ReadLineAsync();
+                                    numEntID.Value = Convert.ToDecimal(await strReader.ReadLineAsync());
+                                }
+                                catch
+                                {
+                                    MessageBox.Show("Unable to read PVEAPIUtility.ini!", "I/O Error");
+                                    return false;
+                                }
                             }
                         }
                     }
+
+                    chkSave.Checked = true;
                 }
-
-                chkSave.Checked = true;
             }
-
-            initLoginInfo = true;
-        }
-
-        private async void ChkSave_CheckedChanged(object sender, EventArgs e)
-        {
-            if (initLoginInfo)
+            catch (Exception e)
             {
-                switch (chkSave.Checked)
-                {
-                    case true:
-                        await TrySaveLoginAsync();
-                        break;
-
-                    case false:
-                        TryDeleteLogin();
-                        break;
-                }
-
-                return;
+                Console.WriteLine(e.Message);
+                return false;
             }
-        }
-
-        private void APIGuideToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVision_Enterprise_APIGuide.pdf");
-            }
-            catch
-            {
-                MessageBox.Show("Utility is not installed or the installation is missing files.", "Error");
-            }
-        }
-
-        private void ServicesGuideToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Process.Start(@"C:\Program Files (x86)\Digitech Systems\PVE API Utility\Docs\PaperVisionEnterpriseServices.pdf");
-            }
-            catch
-            {
-                MessageBox.Show("Utility is not installed or the installation is missing files.", "Error");
-            }
-        }
-
-        private void ClearToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            txtResponse.Clear();
+            return true;
         }
 
         /// <summary>
