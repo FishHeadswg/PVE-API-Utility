@@ -14,14 +14,14 @@ namespace PVEAPIUtility
     public static class APIHelper
     {
         /// <summary>
-        /// Builds and returns a list of fields for the project.
+        /// Builds and returns a list of indexes for the project.
         /// </summary>
         /// <param name="entID"></param>
         /// <param name="sessID"></param>
         /// <param name="projID"></param>
         /// <param name="url"></param>
         /// <returns>Tuple for fields and success.</returns>
-        public static async Task<(List<string> Results, bool Success)> TryBuildFieldList(string entID, string sessID, string projID, string url)
+        public static async Task<(List<string> Results, bool Success)> TryBuildIndexList(string entID, string sessID, string projID, string url)
         {
             string query = BuildPVEQuery("ADLoadProject", new Dictionary<string, string>
             {

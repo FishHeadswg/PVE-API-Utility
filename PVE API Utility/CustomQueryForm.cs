@@ -12,23 +12,13 @@ namespace PVEAPIUtility
 {
     public partial class CustomQueryForm : Form
     {
-        private readonly PVEAPIForm mainForm;
+        private PVEAPIForm mainForm;
 
-        public CustomQueryForm(PVEAPIForm form, string url)
+        public CustomQueryForm(PVEAPIForm form)
         {
-            if (form == null || IsNullOrEmpty(url))
-            {
-                throw new ArgumentNullException();
-            }
-
+            mainForm = form ?? throw new ArgumentNullException();
             InitializeComponent();
-            mainForm = form;
-            RootURL = url;
         }
-
-        public string RootURL { get; set; }
-
-        private void BtnClose_Click(object sender, EventArgs e) => Hide();
 
         /// <summary>
         /// Sends the XML query and prints it as an XDocument (with encoded characters replaced for readability).
@@ -42,7 +32,7 @@ namespace PVEAPIUtility
             string response;
             try
             {
-                response = await txtXMLQuery.Text.SendXml(RootURL);
+                response = await txtXMLQuery.Text.SendXml(mainForm.Url);
             }
             catch (Exception ex)
             {
@@ -51,17 +41,18 @@ namespace PVEAPIUtility
             }
             finally
             {
-                btnSubmit.Enabled = true;
                 btnSubmit.Text = "Submit Query";
+                btnSubmit.Enabled = true;
             }
 
+            mainForm.Enabled = true;
             Hide();
             mainForm.txtResponse.Focus();
             response = XDocument.Parse(response).ToString();
             response = response
                 .Replace("&gt;", ">")
                 .Replace("&lt;", "<");
-            mainForm.txtResponse.AppendText($"{response}\n", mainForm.GetQueryColor());
+            mainForm.txtResponse.AppendText($"{response}\n\n", mainForm.GetQueryColor());
         }
 
         private void BtnXML_Click(object sender, EventArgs e)
@@ -74,6 +65,11 @@ namespace PVEAPIUtility
             {
                 Console.WriteLine(exc.Message);
             }
+        }
+
+        private void CustomQueryForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            mainForm.Enabled = true;
         }
     }
 }

@@ -32,7 +32,6 @@
             this.btnUpload = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.nupProjID = new System.Windows.Forms.NumericUpDown();
-            this.btnClose = new System.Windows.Forms.Button();
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.btnBrowseFile = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -49,7 +48,7 @@
             // 
             // btnUpload
             // 
-            this.btnUpload.Location = new System.Drawing.Point(210, 398);
+            this.btnUpload.Location = new System.Drawing.Point(210, 427);
             this.btnUpload.Name = "btnUpload";
             this.btnUpload.Size = new System.Drawing.Size(80, 23);
             this.btnUpload.TabIndex = 12;
@@ -84,16 +83,6 @@
             0});
             this.nupProjID.ValueChanged += new System.EventHandler(this.NupProjID_ValueChanged);
             // 
-            // btnClose
-            // 
-            this.btnClose.Location = new System.Drawing.Point(210, 427);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(80, 23);
-            this.btnClose.TabIndex = 11;
-            this.btnClose.Text = "Close";
-            this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.BtnClose_Click);
-            // 
             // txtFilePath
             // 
             this.txtFilePath.Location = new System.Drawing.Point(9, 21);
@@ -127,7 +116,7 @@
             this.groupBox2.Controls.Add(this.panel1);
             this.groupBox2.Location = new System.Drawing.Point(12, 69);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(460, 267);
+            this.groupBox2.Size = new System.Drawing.Size(460, 296);
             this.groupBox2.TabIndex = 17;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Document Indexes";
@@ -139,7 +128,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 16);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(454, 248);
+            this.panel1.Size = new System.Drawing.Size(454, 277);
             this.panel1.TabIndex = 1;
             // 
             // indexTable
@@ -162,7 +151,7 @@
             // 
             this.groupBox3.Controls.Add(this.txtFilePath);
             this.groupBox3.Controls.Add(this.btnBrowseFile);
-            this.groupBox3.Location = new System.Drawing.Point(12, 342);
+            this.groupBox3.Location = new System.Drawing.Point(12, 371);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(460, 50);
             this.groupBox3.TabIndex = 18;
@@ -174,17 +163,18 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 462);
-            this.ControlBox = false;
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnUpload);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "UploadForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Upload Document";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.UploadForm_FormClosed);
             this.Load += new System.EventHandler(this.UploadForm_Load);
             this.Shown += new System.EventHandler(this.UploadForm_Show);
             ((System.ComponentModel.ISupportInitialize)(this.nupProjID)).EndInit();
@@ -204,7 +194,6 @@
         private System.Windows.Forms.Button btnUpload;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown nupProjID;
-        private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.TextBox txtFilePath;
         private System.Windows.Forms.Button btnBrowseFile;
         private System.Windows.Forms.GroupBox groupBox1;

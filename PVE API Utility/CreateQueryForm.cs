@@ -15,26 +15,17 @@ namespace PVEAPIUtility
 {
     public partial class CreateQueryForm : Form
     {
-        private string entID;
-        private string sessID;
-        private string url;
+        private PVEAPIForm mainForm;
         private int condCtr = 0;
         private List<ComboBox> condFields = new List<ComboBox>();
         private List<ComboBox> condOps = new List<ComboBox>();
         private List<TextBox> condVals = new List<TextBox>();
         private List<Label> labels = new List<Label>();
 
-        public CreateQueryForm(string entityID, string sessionID, string hosturl)
+        public CreateQueryForm(PVEAPIForm form)
         {
-            if (IsNullOrEmpty(entityID) || IsNullOrEmpty(sessionID) || IsNullOrWhiteSpace(hosturl))
-            {
-                throw new ArgumentNullException();
-            }
-
+            mainForm = form ?? throw new ArgumentNullException();
             InitializeComponent();
-            entID = entityID;
-            sessID = sessionID;
-            url = hosturl;
         }
 
         public int ProjID { get; set; }
@@ -69,10 +60,10 @@ namespace PVEAPIUtility
             condFields.Add(cmbField0);
             condOps.Add(new ComboBox());
             condOps[0] = cmbOp0;
-            cmbOp0.SelectedIndex = 0;
+            cmbOp0.SelectedIndex = 0b0000;
             condVals.Add(new TextBox());
             condVals[0] = txtValue0;
-            cmbSearchType.SelectedIndex = 0;
+            cmbSearchType.SelectedIndex = 0b0000_0000;
             ++condCtr;
             nupProjID.Enabled = true;
         }
@@ -108,6 +99,7 @@ namespace PVEAPIUtility
             SearchType = cmbSearchType.Text;
             SortFieldName = cmbSort.Text;
             RCO = chkRCO.Checked;
+            mainForm.Enabled = true;
             Visible = false;
         }
 
@@ -116,8 +108,8 @@ namespace PVEAPIUtility
             string[] flds = cmbFTR.Text.Split(new string[] { ",", ", " }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < flds.Length; ++i)
                 flds[i] = flds[i].Trim();
-            this.cmbSort.Items.Clear();
-            this.cmbSort.Items.AddRange(flds);
+            cmbSort.Items.Clear();
+            cmbSort.Items.AddRange(flds);
         }
 
         /// <summary>
@@ -151,10 +143,7 @@ namespace PVEAPIUtility
         /// <returns>Returns new Operator combobox.</returns>
         private ComboBox WomboCombo(string type, ComboBox cBox)
         {
-            if (IsNullOrEmpty(type) || cBox == null)
-            {
-                throw new ArgumentNullException();
-            }
+            if (IsNullOrEmpty(type) || cBox == null) throw new ArgumentNullException();
 
             cBox.DropDownStyle = ComboBoxStyle.DropDownList;
             cBox.Items.AddRange(new[]
@@ -182,18 +171,15 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="cBox"></param>
         /// <returns></returns>
-        private async Task<bool> TrySetCBox(ComboBox cBox)
+        private async ValueTask<bool> TrySetCBox(ComboBox cBox)
         {
-            if (cBox == null)
-            {
-                throw new ArgumentNullException();
-            }
+            if (cBox == null) throw new ArgumentNullException();
 
-            var (Results, _) = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
+            var (Results, _) = await APIHelper.TryBuildIndexList(mainForm.EntID, mainForm.SessionID, nupProjID.Value.ToString(), mainForm.Url);
             var projectFields = Results;
             if (projectFields.Count == 0)
             {
-                MessageBox.Show("Invalid Project ID.");
+                MessageBox.Show("Invalid Project ID.", "Error");
                 return false;
             }
 
@@ -314,6 +300,9 @@ namespace PVEAPIUtility
             await QueryFormInitAsync();
         }
 
-        private void CreateQueryForm_FormClosed(object sender, FormClosedEventArgs e) => Hide();
+        private void CreateQueryForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            mainForm.Enabled = true;
+        }
     }
 }

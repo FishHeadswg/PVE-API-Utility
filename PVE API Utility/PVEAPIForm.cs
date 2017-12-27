@@ -39,7 +39,7 @@ namespace PVEAPIUtility
         /// <summary>
         /// Query color iterator.
         /// </summary>
-        private IEnumerator rainbowIter;
+        private readonly IEnumerator rainbowIter;
 
         /// <summary>
         /// Client ping timer (keeps session alive).
@@ -56,6 +56,7 @@ namespace PVEAPIUtility
         private CreateQueryForm createQueryForm;
         private Lazy<UploadForm> uploadForm;
         private Lazy<CustomQueryForm> customForm;
+        private Lazy<APIForm> apiForm;
 
         public PVEAPIForm()
         {
@@ -116,25 +117,8 @@ namespace PVEAPIUtility
                 rainbowIter.Reset();
                 rainbowIter.MoveNext();
             }
-            return (Color)rainbowIter.Current;
-        }
 
-        /// <summary>
-        /// Populates line numbers.
-        /// </summary>
-        public void AddLineNumbers()
-        {
-            Point pt = new Point(1, 1);
-            int firstLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
-            pt.X = txtResponse.ClientRectangle.Width;
-            pt.Y = txtResponse.ClientRectangle.Height;
-            int lastLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
-            txtLineNum.SelectionAlignment = HorizontalAlignment.Right;
-            txtLineNum.Clear();
-            for (int i = firstLine; i <= lastLine + 1; i++)
-            {
-                txtLineNum.Text += $"{(i + 1)}\n";
-            }
+            return (Color)rainbowIter.Current;
         }
 
         /// <summary>
@@ -241,6 +225,8 @@ namespace PVEAPIUtility
                 uploadForm.Value.Close();
             if (customForm?.IsValueCreated ?? false)
                 customForm.Value.Close();
+            if (apiForm?.IsValueCreated ?? false)
+                apiForm.Value.Close();
         }
 
         /// <summary>
@@ -311,11 +297,12 @@ namespace PVEAPIUtility
             if (uploadForm?.Value?.IsDisposed ?? true)
             {
                 {
-                    uploadForm = new Lazy<UploadForm>(() => new UploadForm(EntID, SessionID, Url));
+                    uploadForm = new Lazy<UploadForm>(() => new UploadForm(this));
                 }
             }
 
             uploadForm.Value.Show();
+            Enabled = false;
         }
 
         /// <summary>
@@ -327,10 +314,29 @@ namespace PVEAPIUtility
         {
             if (customForm?.Value?.IsDisposed ?? true)
             {
-                customForm = new Lazy<CustomQueryForm>(() => new CustomQueryForm(this, Url));
+                customForm = new Lazy<CustomQueryForm>(() => new CustomQueryForm(this));
             }
 
             customForm.Value.Show();
+            Enabled = false;
+        }
+
+        /// <summary>
+        /// Open API query builder.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnBuildAPIQuery_Click(object sender, EventArgs e)
+        {
+            if (apiForm?.Value?.IsDisposed ?? true)
+            {
+                {
+                    apiForm = new Lazy<APIForm>(() => new APIForm(this));
+                }
+            }
+
+            apiForm.Value.Show();
+            Enabled = false;
         }
 
         /// <summary>
@@ -380,11 +386,12 @@ namespace PVEAPIUtility
         {
             if (createQueryForm?.IsDisposed ?? true)
             {
-                createQueryForm = new CreateQueryForm(EntID, SessionID, Url);
+                createQueryForm = new CreateQueryForm(this);
                 btnSendQuery.Enabled = true;
             }
 
             createQueryForm.Show();
+            Enabled = false;
         }
 
         /// <summary>
@@ -471,6 +478,24 @@ namespace PVEAPIUtility
         private void ClearToolStripMenuItem_Click(object sender, EventArgs e) => txtResponse.Clear();
 
         /// <summary>
+        /// Populates line numbers.
+        /// </summary>
+        private void AddLineNumbers()
+        {
+            Point pt = new Point(1, 1);
+            int firstLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
+            pt.X = txtResponse.ClientRectangle.Width;
+            pt.Y = txtResponse.ClientRectangle.Height;
+            int lastLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
+            txtLineNum.SelectionAlignment = HorizontalAlignment.Right;
+            txtLineNum.Clear();
+            for (int i = firstLine; i <= lastLine + 1; i++)
+            {
+                txtLineNum.Text += $"{(i + 1)}\n";
+            }
+        }
+
+        /// <summary>
         /// Builds the LoginUserEx3 query
         /// </summary>
         /// <returns></returns>
@@ -494,7 +519,7 @@ namespace PVEAPIUtility
         /// Tries to log in using the provided credentials.
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> TryLoginAsync()
+        private async ValueTask<bool> TryLoginAsync()
         {
             if (IsNullOrWhiteSpace(txtUsername.Text) || IsNullOrWhiteSpace(txtURL.Text))
             {
@@ -536,7 +561,7 @@ namespace PVEAPIUtility
                 }
 
                 txtSessionID.Text = SessionID;
-                btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
+                btnCreateQuery.Enabled = btnBuildAPIQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = numDocID.Enabled = numProjID.Enabled = true;
                 numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = false;
                 return true;
             }
@@ -552,7 +577,7 @@ namespace PVEAPIUtility
         /// Tries to kill the session and updates controls.
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> TryKillSessionAsync()
+        private async ValueTask<bool> TryKillSessionAsync()
         {
             if (SessionID != null)
                 try
@@ -565,14 +590,14 @@ namespace PVEAPIUtility
                     };
                     var query = APIHelper.BuildPVEQuery("KillSession", parameters);
                     await query.SendXml(Url);
-                    btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnCustom.Enabled = btnSendQuery.Enabled = numDocID.Enabled = numProjID.Enabled = false;
+                    btnCreateQuery.Enabled = btnOpenDoc.Enabled = btnUpload.Enabled = btnBuildAPIQuery.Enabled = btnCustom.Enabled = btnSendQuery.Enabled = numDocID.Enabled = numProjID.Enabled = false;
                     numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
                     txtSessionID.Clear();
                     pingTimer.Stop();
                 }
                 catch
                 {
-                    Console.WriteLine("Unable to kill session");
+                    Console.WriteLine("Unable to kill session.");
                     return false;
                 }
             return true;
@@ -716,10 +741,7 @@ namespace PVEAPIUtility
         /// <returns></returns>
         private DocSearchSvc.PVOPERATOR GetOp(string op)
         {
-            if (IsNullOrEmpty(op))
-            {
-                throw new ArgumentNullException();
-            }
+            if (IsNullOrEmpty(op)) throw new ArgumentNullException();
 
             return (DocSearchSvc.PVOPERATOR)Enum.Parse(typeof(DocSearchSvc.PVOPERATOR), op);
         }
@@ -775,7 +797,7 @@ namespace PVEAPIUtility
         /// Encrypt and store login info.
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> TrySaveLoginAsync()
+        private async ValueTask<bool> TrySaveLoginAsync()
         {
             var isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
@@ -816,7 +838,7 @@ namespace PVEAPIUtility
         /// Attempt to load saved login data if it exists.
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> TryLoadLoginAsync()
+        private async ValueTask<bool> TryLoadLoginAsync()
         {
             var isoStore = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 

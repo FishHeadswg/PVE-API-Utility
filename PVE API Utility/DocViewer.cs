@@ -10,14 +10,8 @@ namespace PVEAPIUtility
 {
     public partial class DocViewer : Form
     {
-        public DocViewer()
-        {
-            InitializeComponent();
-        }
+        public DocViewer() => InitializeComponent();
 
-        public void SetURL(string url)
-        {
-            webBrowser.Url = new Uri(url);
-        }
+        public void SetURL(string url) => webBrowser.Url = new Uri(url);
     }
 }

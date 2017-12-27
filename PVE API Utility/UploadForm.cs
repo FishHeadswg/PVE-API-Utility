@@ -19,25 +19,13 @@ namespace PVEAPIUtility
     public partial class UploadForm : Form
     {
         private const int EM_SETCUEBANNER = 0x1501;
-        private List<TextBox> condFields = new List<TextBox>();
-        private List<TextBox> condVals = new List<TextBox>();
-        private List<Label> labels = new List<Label>();
-        private List<string> fieldList = new List<string>();
-        private readonly string entID;
-        private readonly string sessID;
-        private readonly string url;
+        private PVEAPIForm mainForm;
+        private List<string> indexList = new List<string>();
 
-        public UploadForm(string entID, string sessID, string url)
+        public UploadForm(PVEAPIForm form)
         {
-            if (IsNullOrEmpty(entID) || IsNullOrEmpty(sessID) || IsNullOrWhiteSpace(url))
-            {
-                throw new ArgumentNullException();
-            }
-
+            mainForm = form ?? throw new ArgumentNullException();
             InitializeComponent();
-            this.entID = entID;
-            this.sessID = sessID;
-            this.url = url;
         }
 
         public string[] CondFieldNames { get; set; }
@@ -57,19 +45,19 @@ namespace PVEAPIUtility
         private async Task BuildIndexesAsync()
         {
             nupProjID.Enabled = false;
-            fieldList.Clear();
-            var (Results, _) = await APIHelper.TryBuildFieldList(entID, sessID, nupProjID.Value.ToString(), url);
-            fieldList = Results;
-            if (fieldList.Count == 0)
+            indexList.Clear();
+            var (Results, _) = await APIHelper.TryBuildIndexList(mainForm.EntID, mainForm.SessionID, nupProjID.Value.ToString(), mainForm.Url);
+            indexList = Results;
+            if (indexList.Count == 0)
             {
                 MessageBox.Show("Invalid Project ID", "Upload Error");
                 nupProjID.Enabled = true;
                 return;
             }
 
-            indexTable.RowCount = fieldList.Count;
+            indexTable.RowCount = indexList.Count;
             int i = 0;
-            foreach (string field in fieldList)
+            foreach (string field in indexList)
             {
                 indexTable.Controls.Add(new Label() { Text = $"{field}:", Anchor = AnchorStyles.Right, AutoSize = true }, 0, i);
                 indexTable.Controls.Add(new TextBox() { Dock = DockStyle.Fill }, 1, i);
@@ -81,28 +69,28 @@ namespace PVEAPIUtility
 
         private string BuildUploadQuery()
         {
-            string fieldNames = Empty;
-            string fieldVals = Empty;
+            string indexNames = Empty;
+            string indexVals = Empty;
             string base64 = Empty;
             bool first = true;
-            foreach (string field in fieldList)
+            foreach (string index in indexList)
             {
-                if (fieldList.First() == field)
-                    fieldNames += field;
+                if (indexList.First() == index)
+                    indexNames += index;
                 else
-                    fieldNames += $"|{field}";
+                    indexNames += $"|{index}";
             }
 
             foreach (Control c in indexTable.Controls)
             {
                 if (c is TextBox && first)
                 {
-                    fieldVals += c.Text;
+                    indexVals += c.Text;
                     first = false;
                 }
                 else if (c is TextBox)
                 {
-                    fieldVals += $"|{c.Text}";
+                    indexVals += $"|{c.Text}";
                 }
             }
 
@@ -120,13 +108,13 @@ namespace PVEAPIUtility
 
             var parameters = new Dictionary<string, string>
             {
-                ["ENTITYID"] = entID,
-                ["SESSIONID"] = sessID,
+                ["ENTITYID"] = mainForm.EntID,
+                ["SESSIONID"] = mainForm.SessionID,
                 ["PARAMETERS"] = Empty,
                 ["SOURCEIP"] = Empty,
                 ["PROJID"] = nupProjID.Value.ToString(),
-                ["FIELDNAMES"] = fieldNames,
-                ["FIELDVALUES"] = fieldVals,
+                ["FIELDNAMES"] = indexNames,
+                ["FIELDVALUES"] = indexVals,
                 ["ORIGINALFILENAME"] = Path.GetFileName(txtFilePath.Text),
                 ["SAVEDFILE"] = Empty,
                 ["ORIGINALFILENAMEFT"] = Empty,
@@ -139,8 +127,6 @@ namespace PVEAPIUtility
 
             return query.ReplaceFirst("INFILEDATA", @"INFILEDATA types:dt=""bin.base64"" xmlns:types=""urn:schemas-microsoft-com:datatypes""");
         }
-
-        private void BtnClose_Click(object sender, EventArgs e) => Close();
 
         private void BtnBrowseFile_Click(object sender, EventArgs e)
         {
@@ -155,8 +141,6 @@ namespace PVEAPIUtility
         {
             btnUpload.Enabled = false;
             btnUpload.Text = "Uploading...";
-            string response;
-            string docID;
             if (txtFilePath.Text == Empty)
             {
                 MessageBox.Show("No file specified.", "Upload Error");
@@ -167,8 +151,8 @@ namespace PVEAPIUtility
 
             try
             {
-                response = await BuildUploadQuery().SendXml(url);
-                docID = response.TryGetXmlNode("NEWDOCID", out bool success);
+                string response = await BuildUploadQuery().SendXml(mainForm.Url);
+                string docID = response.TryGetXmlNode("NEWDOCID", out bool success);
                 if (docID != Empty)
                     MessageBox.Show($"Upload Successful:\n\nProject ID: {nupProjID.Value.ToString()}\nDocument ID: {docID}", "Upload Success");
                 else
@@ -192,6 +176,11 @@ namespace PVEAPIUtility
             indexTable.Controls.Clear();
             indexTable.RowCount = 1;
             await BuildIndexesAsync();
+        }
+
+        private void UploadForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            mainForm.Enabled = true;
         }
     }
 }

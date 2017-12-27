@@ -64,10 +64,7 @@ namespace PVEAPIUtility
             /// <returns></returns>
             public static async Task<string> SendXml(this string xmlString, string hostURL)
             {
-                if (IsNullOrEmpty(hostURL))
-                {
-                    throw new ArgumentNullException("hostURL");
-                }
+                if (IsNullOrEmpty(hostURL)) throw new ArgumentNullException("hostURL");
 
                 using (var client = new HttpClient())
                 {

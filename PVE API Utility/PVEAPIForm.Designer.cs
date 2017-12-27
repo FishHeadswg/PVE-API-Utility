@@ -76,6 +76,8 @@
             this.ssbar = new System.Windows.Forms.ToolStripProgressBar();
             this.txtLineNum = new System.Windows.Forms.RichTextBox();
             this.panelResults = new System.Windows.Forms.Panel();
+            this.btnBuildAPIQuery = new System.Windows.Forms.Button();
+            this.grpAPIQuery = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.numEntID)).BeginInit();
             this.contextMenuStrip_Output.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numProjID)).BeginInit();
@@ -87,6 +89,7 @@
             this.menuStrip1.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.panelResults.SuspendLayout();
+            this.grpAPIQuery.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLogIn
@@ -102,7 +105,7 @@
             // btnSendQuery
             // 
             this.btnSendQuery.Enabled = false;
-            this.btnSendQuery.Location = new System.Drawing.Point(130, 19);
+            this.btnSendQuery.Location = new System.Drawing.Point(125, 19);
             this.btnSendQuery.Name = "btnSendQuery";
             this.btnSendQuery.Size = new System.Drawing.Size(108, 23);
             this.btnSendQuery.TabIndex = 9;
@@ -158,7 +161,7 @@
             // btnCreateQuery
             // 
             this.btnCreateQuery.Enabled = false;
-            this.btnCreateQuery.Location = new System.Drawing.Point(10, 19);
+            this.btnCreateQuery.Location = new System.Drawing.Point(5, 19);
             this.btnCreateQuery.Name = "btnCreateQuery";
             this.btnCreateQuery.Size = new System.Drawing.Size(114, 23);
             this.btnCreateQuery.TabIndex = 8;
@@ -207,11 +210,11 @@
             this.txtResponse.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtResponse.ContextMenuStrip = this.contextMenuStrip_Output;
             this.txtResponse.Dock = System.Windows.Forms.DockStyle.Right;
-            this.txtResponse.Location = new System.Drawing.Point(41, 0);
+            this.txtResponse.Location = new System.Drawing.Point(42, 0);
             this.txtResponse.Name = "txtResponse";
             this.txtResponse.ReadOnly = true;
             this.txtResponse.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtResponse.Size = new System.Drawing.Size(911, 283);
+            this.txtResponse.Size = new System.Drawing.Size(910, 283);
             this.txtResponse.TabIndex = 55;
             this.txtResponse.Text = "";
             this.txtResponse.SelectionChanged += new System.EventHandler(this.TxtResponse_SelectionChanged);
@@ -231,11 +234,12 @@
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
             this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
             this.clearToolStripMenuItem.Text = "Clear";
+            this.clearToolStripMenuItem.Click += new System.EventHandler(this.ClearToolStripMenuItem_Click);
             // 
             // btnOpenDoc
             // 
             this.btnOpenDoc.Enabled = false;
-            this.btnOpenDoc.Location = new System.Drawing.Point(211, 19);
+            this.btnOpenDoc.Location = new System.Drawing.Point(380, 19);
             this.btnOpenDoc.Name = "btnOpenDoc";
             this.btnOpenDoc.Size = new System.Drawing.Size(40, 23);
             this.btnOpenDoc.TabIndex = 12;
@@ -245,7 +249,7 @@
             // 
             // btnSaveResults
             // 
-            this.btnSaveResults.Location = new System.Drawing.Point(887, 190);
+            this.btnSaveResults.Location = new System.Drawing.Point(893, 101);
             this.btnSaveResults.Name = "btnSaveResults";
             this.btnSaveResults.Size = new System.Drawing.Size(79, 23);
             this.btnSaveResults.TabIndex = 14;
@@ -301,7 +305,7 @@
             0,
             0});
             this.numDocID.Name = "numDocID";
-            this.numDocID.Size = new System.Drawing.Size(40, 20);
+            this.numDocID.Size = new System.Drawing.Size(50, 20);
             this.numDocID.TabIndex = 11;
             this.numDocID.Value = new decimal(new int[] {
             1,
@@ -312,7 +316,7 @@
             // btnUpload
             // 
             this.btnUpload.Enabled = false;
-            this.btnUpload.Location = new System.Drawing.Point(693, 190);
+            this.btnUpload.Location = new System.Drawing.Point(425, 19);
             this.btnUpload.Name = "btnUpload";
             this.btnUpload.Size = new System.Drawing.Size(101, 23);
             this.btnUpload.TabIndex = 13;
@@ -323,10 +327,10 @@
             // btnCustom
             // 
             this.btnCustom.Enabled = false;
-            this.btnCustom.Location = new System.Drawing.Point(800, 190);
+            this.btnCustom.Location = new System.Drawing.Point(86, 19);
             this.btnCustom.Name = "btnCustom";
             this.btnCustom.Size = new System.Drawing.Size(81, 23);
-            this.btnCustom.TabIndex = 7;
+            this.btnCustom.TabIndex = 57;
             this.btnCustom.Text = "Custom Query";
             this.btnCustom.UseVisualStyleBackColor = true;
             this.btnCustom.Click += new System.EventHandler(this.BtnCustom_Click);
@@ -337,7 +341,7 @@
             this.groupBox1.Controls.Add(this.btnSendQuery);
             this.groupBox1.Location = new System.Drawing.Point(16, 171);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(248, 48);
+            this.groupBox1.Size = new System.Drawing.Size(238, 48);
             this.groupBox1.TabIndex = 27;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Document Search";
@@ -351,9 +355,10 @@
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.numDocID);
-            this.groupBox2.Location = new System.Drawing.Point(271, 171);
+            this.groupBox2.Controls.Add(this.btnUpload);
+            this.groupBox2.Location = new System.Drawing.Point(440, 171);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(416, 48);
+            this.groupBox2.Size = new System.Drawing.Size(532, 48);
             this.groupBox2.TabIndex = 28;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "View Document";
@@ -361,7 +366,7 @@
             // radioPVWA
             // 
             this.radioPVWA.AutoSize = true;
-            this.radioPVWA.Location = new System.Drawing.Point(331, 22);
+            this.radioPVWA.Location = new System.Drawing.Point(295, 22);
             this.radioPVWA.Name = "radioPVWA";
             this.radioPVWA.Size = new System.Drawing.Size(79, 17);
             this.radioPVWA.TabIndex = 25;
@@ -372,7 +377,7 @@
             // 
             this.radioBBV.AutoSize = true;
             this.radioBBV.Checked = true;
-            this.radioBBV.Location = new System.Drawing.Point(257, 22);
+            this.radioBBV.Location = new System.Drawing.Point(221, 22);
             this.radioBBV.Name = "radioBBV";
             this.radioBBV.Size = new System.Drawing.Size(68, 17);
             this.radioBBV.TabIndex = 24;
@@ -556,9 +561,10 @@
             this.txtLineNum.Name = "txtLineNum";
             this.txtLineNum.ReadOnly = true;
             this.txtLineNum.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.txtLineNum.Size = new System.Drawing.Size(35, 283);
+            this.txtLineNum.Size = new System.Drawing.Size(36, 283);
             this.txtLineNum.TabIndex = 33;
             this.txtLineNum.Text = "";
+            this.txtLineNum.WordWrap = false;
             this.txtLineNum.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LineNumberTextBox_MouseDown);
             // 
             // panelResults
@@ -571,6 +577,28 @@
             this.panelResults.Size = new System.Drawing.Size(956, 287);
             this.panelResults.TabIndex = 56;
             // 
+            // btnBuildAPIQuery
+            // 
+            this.btnBuildAPIQuery.Enabled = false;
+            this.btnBuildAPIQuery.Location = new System.Drawing.Point(5, 19);
+            this.btnBuildAPIQuery.Name = "btnBuildAPIQuery";
+            this.btnBuildAPIQuery.Size = new System.Drawing.Size(75, 23);
+            this.btnBuildAPIQuery.TabIndex = 56;
+            this.btnBuildAPIQuery.Text = "Build Query";
+            this.btnBuildAPIQuery.UseVisualStyleBackColor = true;
+            this.btnBuildAPIQuery.Click += new System.EventHandler(this.BtnBuildAPIQuery_Click);
+            // 
+            // grpAPIQuery
+            // 
+            this.grpAPIQuery.Controls.Add(this.btnBuildAPIQuery);
+            this.grpAPIQuery.Controls.Add(this.btnCustom);
+            this.grpAPIQuery.Location = new System.Drawing.Point(260, 171);
+            this.grpAPIQuery.Name = "grpAPIQuery";
+            this.grpAPIQuery.Size = new System.Drawing.Size(174, 48);
+            this.grpAPIQuery.TabIndex = 58;
+            this.grpAPIQuery.TabStop = false;
+            this.grpAPIQuery.Text = "API Query";
+            // 
             // PVEAPIForm
             // 
             this.AcceptButton = this.btnLogIn;
@@ -578,14 +606,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(984, 537);
+            this.Controls.Add(this.grpAPIQuery);
             this.Controls.Add(this.panelResults);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.btnCustom);
-            this.Controls.Add(this.btnUpload);
             this.Controls.Add(this.btnSaveResults);
             this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -615,6 +642,7 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.panelResults.ResumeLayout(false);
+            this.grpAPIQuery.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -670,6 +698,8 @@
         private System.Windows.Forms.ToolStripProgressBar ssbar;
         private System.Windows.Forms.RichTextBox txtLineNum;
         private System.Windows.Forms.Panel panelResults;
+        private System.Windows.Forms.Button btnBuildAPIQuery;
+        private System.Windows.Forms.GroupBox grpAPIQuery;
     }
 }
 
