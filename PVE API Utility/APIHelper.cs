@@ -50,7 +50,7 @@ namespace PVEAPIUtility
             sXML.Append($"<PVDM_HTTPINTERFACE><FUNCTION><NAME>{fName}</NAME><PARAMETERS>");
             foreach (var kvp in parameters)
             {
-                sXML.Append($"<{kvp.Key}>{EncodeXMLString(kvp.Value)}</{kvp.Key}>");
+                sXML.Append($"<{kvp.Key}>{kvp.Value}</{kvp.Key}>");
             }
 
             sXML.Append("</PARAMETERS></FUNCTION></PVDM_HTTPINTERFACE>");
@@ -70,14 +70,6 @@ namespace PVEAPIUtility
                 return $"{url}httpinterface.aspx";
             else
                 return $"{url}/httpinterface.aspx";
-        }
-
-        private static string EncodeXMLString(string xmlString)
-        {
-            return xmlString
-                .Replace(">", "&gt;")
-                .Replace("<", "&lt;")
-                .Replace("&", "&amp;");
         }
     }
 }
