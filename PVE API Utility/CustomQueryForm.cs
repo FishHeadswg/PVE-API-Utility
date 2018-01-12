@@ -45,9 +45,8 @@ namespace PVEAPIUtility
                 btnSubmit.Enabled = true;
             }
 
-            mainForm.Enabled = true;
+            DialogResult = DialogResult.OK;
             Hide();
-            mainForm.txtResponse.Focus();
             response = XDocument.Parse(response).ToString();
             response = response
                 .Replace("&gt;", ">")
@@ -65,11 +64,6 @@ namespace PVEAPIUtility
             {
                 Console.WriteLine(exc.Message);
             }
-        }
-
-        private void CustomQueryForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            mainForm.Enabled = true;
         }
     }
 }

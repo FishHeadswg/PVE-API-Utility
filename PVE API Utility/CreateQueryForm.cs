@@ -119,20 +119,27 @@ namespace PVEAPIUtility
         /// <param name="e"></param>
         private async void BtnAddCond_Click(object sender, EventArgs e)
         {
-            labels.Add(new Label());
-            condPanel.Controls.Add(CreateLabel("field", labels[(3 * (condCtr - 1))]));
-            condFields.Add(new ComboBox());
-            await TrySetCBox(condFields[condCtr]);
-            condPanel.Controls.Add(condFields[condCtr]);
-            labels.Add(new Label());
-            condPanel.Controls.Add(CreateLabel("operator", labels[(3 * (condCtr - 1)) + 1]));
-            condOps.Add(new ComboBox());
-            condPanel.Controls.Add(WomboCombo("operator", condOps[condCtr]));
-            labels.Add(new Label());
-            condPanel.Controls.Add(CreateLabel("value", labels[(3 * (condCtr - 1)) + 2]));
-            condVals.Add(new TextBox());
-            condPanel.Controls.Add(condVals[condCtr]);
-            ++condCtr;
+            try
+            {
+                labels.Add(new Label());
+                condPanel.Controls.Add(CreateLabel("field", labels[(3 * (condCtr - 1))]));
+                condFields.Add(new ComboBox());
+                await TrySetCBox(condFields[condCtr]);
+                condPanel.Controls.Add(condFields[condCtr]);
+                labels.Add(new Label());
+                condPanel.Controls.Add(CreateLabel("operator", labels[(3 * (condCtr - 1)) + 1]));
+                condOps.Add(new ComboBox());
+                condPanel.Controls.Add(WomboCombo("operator", condOps[condCtr]));
+                labels.Add(new Label());
+                condPanel.Controls.Add(CreateLabel("value", labels[(3 * (condCtr - 1)) + 2]));
+                condVals.Add(new TextBox());
+                condPanel.Controls.Add(condVals[condCtr]);
+                ++condCtr;
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc.Message);
+            }
         }
 
         /// <summary>

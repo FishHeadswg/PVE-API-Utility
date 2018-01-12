@@ -28,7 +28,7 @@ namespace PVEAPIUtility
             InitializeComponent();
             Type pvAction = Assembly.ReflectionOnlyLoad("Interop.PVDMSystem").GetModules()[0].Assembly.GetType("PVDMSystem.PVActionClass");
             pvActionQueries = pvAction.GetMethods(BindingFlags.Public | BindingFlags.NonPublic |
-               BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Where(x => x.GetParameters().Length > 1).OrderBy(x => x.Name).ToArray();
+               BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Where(x => x.GetParameters().Length > 2).OrderBy(x => x.Name).ToArray();
         }
 
         private void CmbQuery_SelectedIndexChanged(object sender, EventArgs e)
@@ -93,9 +93,8 @@ namespace PVEAPIUtility
                 btnSend.Enabled = true;
             }
 
-            mainForm.Enabled = true;
+            DialogResult = DialogResult.OK;
             Hide();
-            mainForm.txtResponse.Focus();
             response = XDocument.Parse(response).ToString();
             response = response
                 .Replace("&gt;", ">")
@@ -126,11 +125,6 @@ namespace PVEAPIUtility
             }
 
             return APIHelper.BuildPVEQuery(cmbQuery.SelectedItem as string, parameters);
-        }
-
-        private void APIForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            mainForm.Enabled = true;
         }
     }
 }

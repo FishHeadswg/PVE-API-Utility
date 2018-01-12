@@ -177,10 +177,5 @@ namespace PVEAPIUtility
             indexTable.RowCount = 1;
             await BuildIndexesAsync();
         }
-
-        private void UploadForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            mainForm.Enabled = true;
-        }
     }
 }

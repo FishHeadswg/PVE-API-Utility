@@ -174,7 +174,6 @@
             this.Name = "UploadForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Upload Document";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.UploadForm_FormClosed);
             this.Load += new System.EventHandler(this.UploadForm_Load);
             this.Shown += new System.EventHandler(this.UploadForm_Show);
             ((System.ComponentModel.ISupportInitialize)(this.nupProjID)).EndInit();

@@ -261,7 +261,7 @@ namespace PVEAPIUtility
             {
                 String url = $"{Url}/PVEDocViewer.aspx?SessionID={SessionID}&EntID={Convert.ToString(numEntID.Value)}&ProjID={Convert.ToString(numProjID.Value)}&DocId={Convert.ToString(numDocID.Value)}&Page=1";
                 docViewer.SetURL(url);
-                docViewer.Show();
+                docViewer.Show(this);
 
                 // Uncomment to use default browser instead
                 /*
@@ -301,8 +301,7 @@ namespace PVEAPIUtility
                 }
             }
 
-            uploadForm.Value.Show();
-            Enabled = false;
+            uploadForm.Value.ShowDialog(this);
         }
 
         /// <summary>
@@ -317,8 +316,11 @@ namespace PVEAPIUtility
                 customForm = new Lazy<CustomQueryForm>(() => new CustomQueryForm(this));
             }
 
-            customForm.Value.Show();
-            Enabled = false;
+            if (customForm.Value.ShowDialog(this) == DialogResult.OK)
+            {
+                txtResponse.Focus();
+                txtResponse.ScrollToCaret();
+            }
         }
 
         /// <summary>
@@ -330,13 +332,14 @@ namespace PVEAPIUtility
         {
             if (apiForm?.Value?.IsDisposed ?? true)
             {
-                {
-                    apiForm = new Lazy<APIForm>(() => new APIForm(this));
-                }
+                apiForm = new Lazy<APIForm>(() => new APIForm(this));
             }
 
-            apiForm.Value.Show();
-            Enabled = false;
+            if (apiForm.Value.ShowDialog(this) == DialogResult.OK)
+            {
+                txtResponse.Focus();
+                txtResponse.ScrollToCaret();
+            }
         }
 
         /// <summary>
@@ -378,7 +381,7 @@ namespace PVEAPIUtility
         }
 
         /// <summary>
-        /// Open the Create Query form
+        /// Open the Create Query form.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -390,7 +393,7 @@ namespace PVEAPIUtility
                 btnSendQuery.Enabled = true;
             }
 
-            createQueryForm.Show();
+            createQueryForm.Show(this);
             Enabled = false;
         }
 
@@ -421,7 +424,7 @@ namespace PVEAPIUtility
             abtForm.Location = new Point(
                 Location.X + ((Width - abtForm.Width) / 2),
                 Location.Y + ((Height - abtForm.Height) / 2));
-            abtForm.Show(this);
+            abtForm.ShowDialog(this);
         }
 
         /// <summary>

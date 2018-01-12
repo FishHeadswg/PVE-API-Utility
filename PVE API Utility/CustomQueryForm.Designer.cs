@@ -78,7 +78,6 @@
             this.Name = "CustomQueryForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "CustomQueryForm";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.CustomQueryForm_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

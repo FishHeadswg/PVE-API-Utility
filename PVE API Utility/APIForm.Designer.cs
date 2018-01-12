@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(APIForm));
             this.cmbQuery = new System.Windows.Forms.ComboBox();
             this.lblQuery = new System.Windows.Forms.Label();
             this.groupParams = new System.Windows.Forms.GroupBox();
@@ -116,11 +117,12 @@
             this.Controls.Add(this.groupParams);
             this.Controls.Add(this.lblQuery);
             this.Controls.Add(this.cmbQuery);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "APIForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "APIForm";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.APIForm_FormClosed);
             this.Load += new System.EventHandler(this.APIForm_Load);
             this.groupParams.ResumeLayout(false);
             this.panelParams.ResumeLayout(false);
