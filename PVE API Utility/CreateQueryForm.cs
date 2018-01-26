@@ -21,6 +21,7 @@ namespace PVEAPIUtility
         private List<ComboBox> condOps = new List<ComboBox>();
         private List<TextBox> condVals = new List<TextBox>();
         private List<Label> labels = new List<Label>();
+        private Dictionary<int, List<string>> indexes = new Dictionary<int, List<string>>();
 
         public CreateQueryForm(PVEAPIForm form)
         {
@@ -181,16 +182,31 @@ namespace PVEAPIUtility
         private async ValueTask<bool> TrySetCBox(ComboBox cBox)
         {
             if (cBox == null) throw new ArgumentNullException();
-
-            var (Results, _) = await APIHelper.TryBuildIndexList(mainForm.EntID, mainForm.SessionID, nupProjID.Value.ToString(), mainForm.Url);
-            var projectFields = Results;
-            if (projectFields.Count == 0)
+            var results = new List<string>();
+            try
             {
-                MessageBox.Show("Invalid Project ID.", "Error");
-                return false;
+                if (indexes.TryGetValue(Convert.ToInt32(nupProjID.Value), out var val))
+                {
+                    results = val;
+                }
+                else
+                {
+                    var (Results, _) = await APIHelper.TryBuildIndexList(mainForm.EntID, mainForm.SessionID, nupProjID.Value.ToString(), mainForm.Url);
+                    if (Results.Count == 0)
+                    {
+                        MessageBox.Show("Invalid Project ID.", "Error");
+                        return false;
+                    }
+                    results = Results;
+                    indexes.Add(Convert.ToInt32(nupProjID.Value), results);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
 
-            var projectFieldsArray = projectFields.ToArray();
+            var projectFieldsArray = results.ToArray();
             var autocomp = new AutoCompleteStringCollection();
             cBox.Items.Clear();
             cBox.Items.AddRange(projectFieldsArray);

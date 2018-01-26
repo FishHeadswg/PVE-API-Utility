@@ -122,7 +122,7 @@
             this.MinimizeBox = false;
             this.Name = "APIForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "APIForm";
+            this.Text = "API Query";
             this.Load += new System.EventHandler(this.APIForm_Load);
             this.groupParams.ResumeLayout(false);
             this.panelParams.ResumeLayout(false);
