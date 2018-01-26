@@ -25,3 +25,7 @@ A simple tool to demonstrate how you can interact with our web services on both 
 
 - View documents using either the Browser-Based Viewer or the PaperVision Web Assistant
 - Upload new documents to PVE/Silo
+
+## Installation
+
+See [Releases](releases) for the latest installer.
