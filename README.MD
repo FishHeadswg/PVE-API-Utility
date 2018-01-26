@@ -28,4 +28,4 @@ A simple tool to demonstrate how you can interact with our web services on both 
 
 ## Installation
 
-See [Releases](releases) for the latest installer.
+See [Releases](https://github.com/tar07/PVE-API-Utility/releases) for the latest installer.
