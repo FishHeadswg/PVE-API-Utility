@@ -13,7 +13,7 @@ A simple tool to demonstrate how you can interact with our web services on both 
 
 <div align="center">
   <img src="img/dsq.png" width="700px" />
-  <p>Multiple conditions can be added.</p>
+  <p>Indexes are automatically populated for each project. Multiple conditions can be added.</p>
 </div>
 
 - Build and send XML queries using PVE/Silo's Web Service
