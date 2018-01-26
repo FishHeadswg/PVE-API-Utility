@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PVE API Utility", "PVE API Utility\PVE API Utility.csproj", "{C069CCFC-036D-4B9D-80DF-BB75955932FC}"
 EndProject
@@ -26,9 +26,13 @@ Global
 		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Debug|Any CPU.ActiveCfg = Debug
 		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Debug|x86.ActiveCfg = Debug
 		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Release|Any CPU.ActiveCfg = Release
+		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Release|Any CPU.Build.0 = Release
 		{E378B9BD-3DBD-424B-8369-CA1C26C466EB}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4E7B2261-3D57-4A2B-8418-1409BEC69477}
 	EndGlobalSection
 EndGlobal
