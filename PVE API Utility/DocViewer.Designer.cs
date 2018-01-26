@@ -51,7 +51,7 @@
             this.Controls.Add(this.webBrowser);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "DocViewer";
-            this.Text = "DocViewer";
+            this.Text = "Browser-Based Viewer";
             this.ResumeLayout(false);
 
         }
