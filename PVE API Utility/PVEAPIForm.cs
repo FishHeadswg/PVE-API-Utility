@@ -4,6 +4,7 @@
  * Follow the comments to complete the form (or simply search for *TO BE DONE*).
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,6 @@ using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using static System.String;
 
 // *TO BE DONE*: You will need to add this DLL reference to the project to link the utility with PVE's COM interface.
@@ -25,6 +25,7 @@ using static System.String;
 namespace PVEAPIUtility
 {
     using CustomExtensions;
+    using DocSearchSvc;
 
     /// <summary>
     /// Main form for the API utility.
@@ -32,7 +33,7 @@ namespace PVEAPIUtility
     public partial class PVEAPIForm : Form
     {
         /// <summary>
-        /// Gets colors used for returned queries.
+        /// Colors used for returned queries.
         /// </summary>
         private readonly Color[] rainbow = new[] { Color.Black, Color.Green, Color.Blue, Color.Indigo };
 
@@ -371,7 +372,7 @@ namespace PVEAPIUtility
             }
             finally
             {
-                docSearchVars.PVResponse = new DocSearchSvc.PVQUERYRESPONSE();
+                docSearchVars.PVResponse = new PVQUERYRESPONSE();
                 btnSendQuery.Text = "Send Search Query";
                 ssLbl.Text = "Logged in.";
                 ssbar.Visible = false;
@@ -612,13 +613,13 @@ namespace PVEAPIUtility
         private void BuildQuery()
         {
             // Build/Reset search criteria
-            docSearchVars.PVSession = new DocSearchSvc.PVSESSION();
-            docSearchVars.PVQuery = new DocSearchSvc.PVQUERY();
-            docSearchVars.PVProjQuery = new DocSearchSvc.PVPROJECTQUERY();
-            docSearchVars.PVField = new DocSearchSvc.PVFIELD();
-            docSearchVars.PVCond = new DocSearchSvc.PVCONDITION();
-            docSearchVars.PVConds = new DocSearchSvc.PVCONDITION[createQueryForm.CondFieldNames.Length];
-            docSearchVars.PVSort = new DocSearchSvc.PVSORT();
+            docSearchVars.PVSession = new PVSESSION();
+            docSearchVars.PVQuery = new PVQUERY();
+            docSearchVars.PVProjQuery = new PVPROJECTQUERY();
+            docSearchVars.PVField = new PVFIELD();
+            docSearchVars.PVCond = new PVCONDITION();
+            docSearchVars.PVConds = new PVCONDITION[createQueryForm.CondFieldNames.Length];
+            docSearchVars.PVSort = new PVSORT();
 
             docSearchVars.PVSession.ENTITYID = Convert.ToInt32(EntID);
             docSearchVars.PVSession.SESSIONID = SessionID;
@@ -628,10 +629,10 @@ namespace PVEAPIUtility
             if (createQueryForm.CondFieldNames.Length > 1)
             {
                 docSearchVars.PVCond.CONDITIONGROUP = true;
-                docSearchVars.PVCond.CONDITIONCONNECTOR = (createQueryForm.SearchType == "AND") ? DocSearchSvc.PVBOOLEAN.AND : DocSearchSvc.PVBOOLEAN.OR;
+                docSearchVars.PVCond.CONDITIONCONNECTOR = (createQueryForm.SearchType == "AND") ? PVBOOLEAN.AND : PVBOOLEAN.OR;
                 for (int i = 0; i < createQueryForm.CondFieldNames.Length; ++i)
                 {
-                    docSearchVars.PVConds[i] = new DocSearchSvc.PVCONDITION()
+                    docSearchVars.PVConds[i] = new PVCONDITION()
                     {
                         FIELDNAME = createQueryForm.CondFieldNames[i],
                         OPERATOR = GetOp(createQueryForm.Ops[i]),
@@ -650,10 +651,10 @@ namespace PVEAPIUtility
 
             docSearchVars.PVProjQuery.CONDITION = docSearchVars.PVCond;
             docSearchVars.PVSort.FIELDNAME = (createQueryForm.SortFieldName == string.Empty) ? "DOCID" : createQueryForm.SortFieldName;
-            docSearchVars.PVSort.SORTORDER = DocSearchSvc.PVSORTORDER.ASCENDING;
+            docSearchVars.PVSort.SORTORDER = PVSORTORDER.ASCENDING;
             docSearchVars.PVProjQuery.RETURNCOUNTONLY = createQueryForm.RCO;
-            docSearchVars.PVProjQuery.SORTFIELDS = new DocSearchSvc.PVSORT[] { docSearchVars.PVSort };
-            docSearchVars.PVQuery.PROJECTQUERIES = new DocSearchSvc.PVPROJECTQUERY[] { docSearchVars.PVProjQuery };
+            docSearchVars.PVProjQuery.SORTFIELDS = new PVSORT[] { docSearchVars.PVSort };
+            docSearchVars.PVQuery.PROJECTQUERIES = new PVPROJECTQUERY[] { docSearchVars.PVProjQuery };
         }
 
         /// <summary>
@@ -661,12 +662,12 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="fields"></param>
         /// <returns></returns>
-        private DocSearchSvc.PVFIELD[] ReturnFields(string fields)
+        private PVFIELD[] ReturnFields(string fields)
         {
             if (fields == string.Empty)
             {
-                DocSearchSvc.PVFIELD[] pvField = new DocSearchSvc.PVFIELD[1];
-                pvField[0] = new DocSearchSvc.PVFIELD()
+                PVFIELD[] pvField = new PVFIELD[1];
+                pvField[0] = new PVFIELD()
                 {
                     FIELDNAME = "DOCID"
                 };
@@ -674,11 +675,11 @@ namespace PVEAPIUtility
             }
 
             string[] flds = fields.Split(new string[] { ",", ", " }, StringSplitOptions.RemoveEmptyEntries);
-            DocSearchSvc.PVFIELD[] pvFields = new DocSearchSvc.PVFIELD[flds.Length];
+            PVFIELD[] pvFields = new PVFIELD[flds.Length];
             int i = 0;
             foreach (string fld in flds)
             {
-                pvFields[i] = new DocSearchSvc.PVFIELD()
+                pvFields[i] = new PVFIELD()
                 {
                     FIELDNAME = fld.Trim()
                 };
@@ -695,12 +696,12 @@ namespace PVEAPIUtility
         /// <param name="session"></param>
         /// <param name="query"></param>
         /// <returns></returns>
-        private async Task<DocSearchSvc.PVQUERYRESPONSE> QueryExecutionAsync(string conurl, DocSearchSvc.PVSESSION session, DocSearchSvc.PVQUERY query)
+        private async Task<PVQUERYRESPONSE> QueryExecutionAsync(string conurl, PVSESSION session, PVQUERY query)
         {
-            var myProjQueryResponse = new DocSearchSvc.SEARCHResponse();
+            var myProjQueryResponse = new SEARCHResponse();
 
             // Create Document Search Client object for opening and closing the DSS for query searches
-            var mySearchClient = new DocSearchSvc.PVDOCUMENTSEARCHClient();
+            var mySearchClient = new PVDOCUMENTSEARCHClient();
 
             // Set endpoint
             mySearchClient.Endpoint.Address = new EndpointAddress($"{conurl}/Services/DocumentSearch/DocumentSearch.svc");
@@ -742,11 +743,11 @@ namespace PVEAPIUtility
         /// </summary>
         /// <param name="op">Operation type.</param>
         /// <returns></returns>
-        private DocSearchSvc.PVOPERATOR GetOp(string op)
+        private PVOPERATOR GetOp(string op)
         {
             if (IsNullOrEmpty(op)) throw new ArgumentNullException();
 
-            return (DocSearchSvc.PVOPERATOR)Enum.Parse(typeof(DocSearchSvc.PVOPERATOR), op);
+            return (PVOPERATOR)Enum.Parse(typeof(PVOPERATOR), op);
         }
 
         private async void PingSessionAsync(object sender, EventArgs e)
@@ -888,14 +889,14 @@ namespace PVEAPIUtility
         /// </summary>
         private struct DocSearchVars
         {
-            public DocSearchSvc.PVSESSION PVSession;
-            public DocSearchSvc.PVQUERY PVQuery;
-            public DocSearchSvc.PVPROJECTQUERY PVProjQuery;
-            public DocSearchSvc.PVFIELD PVField;
-            public DocSearchSvc.PVCONDITION PVCond;
-            public DocSearchSvc.PVCONDITION[] PVConds;
-            public DocSearchSvc.PVSORT PVSort;
-            public DocSearchSvc.PVQUERYRESPONSE PVResponse;
+            public PVSESSION PVSession;
+            public PVQUERY PVQuery;
+            public PVPROJECTQUERY PVProjQuery;
+            public PVFIELD PVField;
+            public PVCONDITION PVCond;
+            public PVCONDITION[] PVConds;
+            public PVSORT PVSort;
+            public PVQUERYRESPONSE PVResponse;
         }
     }
 }

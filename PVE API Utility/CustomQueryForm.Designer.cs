@@ -37,6 +37,7 @@
             // txtXMLQuery
             // 
             this.txtXMLQuery.Location = new System.Drawing.Point(13, 13);
+            this.txtXMLQuery.MaxLength = 0;
             this.txtXMLQuery.Multiline = true;
             this.txtXMLQuery.Name = "txtXMLQuery";
             this.txtXMLQuery.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;

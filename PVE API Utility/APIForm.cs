@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.String;
 
@@ -65,7 +60,7 @@ namespace PVEAPIUtility
                 if (param.Name == "SessionID")
                     paramTable.Controls.Add(new TextBox() { Dock = DockStyle.Fill, Text = mainForm.SessionID }, 1, i);
                 else
-                    paramTable.Controls.Add(new TextBox() { Dock = DockStyle.Fill }, 1, i);
+                    paramTable.Controls.Add(new TextBox() { Dock = DockStyle.Fill, MaxLength = 0 }, 1, i);
                 paramList.Add(param.Name);
                 ++i;
             }
