@@ -13,6 +13,8 @@ using static System.String;
 
 namespace PVEAPIUtility
 {
+    using DocSearchSvc;
+
     public partial class CreateQueryForm : Form
     {
         private PVEAPIForm mainForm;
@@ -34,7 +36,7 @@ namespace PVEAPIUtility
         public string[] CondFieldNames { get; set; }
         public string[] Ops { get; set; }
         public string[] Values { get; set; }
-        public string SearchType { get; set; }
+        public PVBOOLEAN SearchType { get; set; }
         public string SortFieldName { get; set; }
         public bool RCO { get; set; }
 
@@ -97,7 +99,7 @@ namespace PVEAPIUtility
                 ++i;
             }
 
-            SearchType = cmbSearchType.Text;
+            SearchType = (cmbSearchType.SelectedIndex == 0) ? PVBOOLEAN.OR : PVBOOLEAN.AND;
             SortFieldName = cmbSort.Text;
             RCO = chkRCO.Checked;
             mainForm.Enabled = true;

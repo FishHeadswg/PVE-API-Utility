@@ -69,7 +69,7 @@ namespace PVEAPIUtility
         /// <summary>
         /// Batch operations.
         /// </summary>
-        public enum BatchOp
+        public enum BatchOp : byte
         {
             View = 0,
             Email = 1,
@@ -493,9 +493,16 @@ namespace PVEAPIUtility
             int lastLine = txtResponse.GetLineFromCharIndex(txtResponse.GetCharIndexFromPosition(pt));
             txtLineNum.SelectionAlignment = HorizontalAlignment.Right;
             txtLineNum.Clear();
-            for (int i = firstLine; i <= lastLine + 1; i++)
+            try
             {
-                txtLineNum.Text += $"{(i + 1)}\n";
+                for (int i = firstLine; i <= lastLine + 1; i++)
+                {
+                    txtLineNum.Text += $"{checked(i + 1)}\n";
+                }
+            }
+            catch (OverflowException ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -629,7 +636,7 @@ namespace PVEAPIUtility
             if (createQueryForm.CondFieldNames.Length > 1)
             {
                 docSearchVars.PVCond.CONDITIONGROUP = true;
-                docSearchVars.PVCond.CONDITIONCONNECTOR = (createQueryForm.SearchType == "AND") ? PVBOOLEAN.AND : PVBOOLEAN.OR;
+                docSearchVars.PVCond.CONDITIONCONNECTOR = createQueryForm.SearchType;
                 for (int i = 0; i < createQueryForm.CondFieldNames.Length; ++i)
                 {
                     docSearchVars.PVConds[i] = new PVCONDITION()
