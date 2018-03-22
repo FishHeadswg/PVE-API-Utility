@@ -544,19 +544,31 @@ namespace PVEAPIUtility
             Password = txtPW.Text;
             Url = txtURL.Text;
             string response;
+            string exc = Empty;
             try
             {
                 response = await BuildLoginQuery().SendXml(Url);
             }
-            catch
+            catch (Exception e)
             {
                 response = Empty;
+                exc = e.Message;
             }
 
             if (response == Empty)
             {
                 MessageBox.Show("Your root URL is invalid.", "Login Error");
                 numEntID.Enabled = txtPW.Enabled = txtUsername.Enabled = txtURL.Enabled = true;
+                try
+                {
+                    if (!EventLog.SourceExists("Papervision API Utility"))
+                        EventLog.CreateEventSource("Papervision API Utility", "Application");
+                    EventLog.WriteEntry("Papervision API Utility", exc, EventLogEntryType.Warning);
+                }
+                catch
+                {
+                    MessageBox.Show("There was a security error when attempting to save to your event logs. Please re-run the utility as administrator.");
+                }
                 return false;
             }
 
